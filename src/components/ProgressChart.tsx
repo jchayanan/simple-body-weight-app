@@ -1,7 +1,7 @@
 import { LayoutChangeEvent, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 import type { ChartPoint } from '@/src/lib/statisticsMath';
-import { colors, fonts, spacing } from '@/src/theme';
+import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 export type ChartSeries = 'regular' | 'maximum';
 
@@ -18,6 +18,8 @@ const chartHeight = 148;
 const pointValue = (point: ChartPoint, series: ChartSeries) => series === 'regular' ? point.reps : point.bestSet;
 
 export function ProgressChart({ regularSeries, maximumSeries, activeSeries, selected, onSeriesChange, onSelect }: Props) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
   const [width, setWidth] = useState(0);
   const allValues = [...regularSeries.map((point) => point.reps), ...maximumSeries.map((point) => point.bestSet)];
   const maximum = Math.max(...allValues, 1);
@@ -51,7 +53,7 @@ export function ProgressChart({ regularSeries, maximumSeries, activeSeries, sele
   </View>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: AppColors) => StyleSheet.create({
   container: { borderBottomColor: colors.border, borderBottomWidth: 1, paddingBottom: spacing.md },
   legend: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   legendButton: { alignItems: 'center', borderColor: colors.border, borderWidth: 1, flexDirection: 'row', minHeight: 44, paddingHorizontal: spacing.sm },

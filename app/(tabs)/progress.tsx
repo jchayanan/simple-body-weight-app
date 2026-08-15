@@ -5,7 +5,7 @@ import { ProgressChart, type ChartSeries } from '@/src/components/ProgressChart'
 import { Screen } from '@/src/components/Screen';
 import { getStatisticsHistory } from '@/src/lib/localDb';
 import { buildStatisticsView, formatBucketLabel, type StatisticsFilter, type TimeRange } from '@/src/lib/statisticsMath';
-import { colors, fonts, spacing } from '@/src/theme';
+import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 const ranges: Array<{ value: TimeRange; label: string }> = [
   { value: '30d', label: '30 Days' },
@@ -15,6 +15,8 @@ const ranges: Array<{ value: TimeRange; label: string }> = [
 ];
 
 export default function ProgressScreen() {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
   const [history, setHistory] = useState<ReturnType<typeof getStatisticsHistory>>({ workouts: [], maximumTests: [] });
   const [range, setRange] = useState<TimeRange>('30d');
   const [filter, setFilter] = useState<StatisticsFilter>({ type: 'exercise', value: 'Push-up' });
@@ -68,10 +70,12 @@ export default function ProgressScreen() {
 }
 
 function Metric({ label, value, last = false }: { label: string; value: number | string; last?: boolean }) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
   return <View style={[styles.metric, last && styles.metricLast]}><Text style={styles.metricLabel}>{label}</Text><Text style={styles.metricValue}>{value}</Text></View>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: AppColors) => StyleSheet.create({
   header: { marginBottom: spacing.xl, paddingTop: spacing.md },
   title: { color: colors.ink, fontFamily: fonts.body, fontSize: 36, fontWeight: '800', letterSpacing: -1.1 },
   subtitle: { color: colors.muted, fontFamily: fonts.body, fontSize: 15, lineHeight: 21, marginTop: spacing.xs },
