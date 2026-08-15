@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getMovementProgramStatus, saveCompletedWorkout } from '@/src/lib/localDb';
 import { buildMaxProgramTargets, type MovementName } from '@/src/lib/progressMath';
+import { toTrackedWorkoutEntries } from '@/src/lib/workoutEntries';
 
 export { buildMaxProgramTargets } from '@/src/lib/progressMath';
 
@@ -33,6 +34,8 @@ type WorkoutState = {
   lastWorkoutTotal: number;
   lastWorkoutName: string;
   lastWorkoutSetCount: number;
+  lastWorkoutDurationMinutes: number | null;
+  workoutStartedAt: number | null;
   setCurrentReps: (reps: number) => void;
   startRoutine: () => void;
   startMaxProgram: (movement: MaxProgramMovement, maximumReps: number) => void;
@@ -50,6 +53,8 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
   lastWorkoutTotal: 0,
   lastWorkoutName: '',
   lastWorkoutSetCount: 0,
+  lastWorkoutDurationMinutes: null,
+  workoutStartedAt: null,
   setCurrentReps: (reps) => set((state) => {
     const setReps = [...state.setReps];
     setReps[state.currentExercise] = Math.max(0, Math.round(reps));
@@ -61,6 +66,7 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
     setReps: [...defaultPlan.targetReps],
     savedExercises: defaultPlan.labels.map(() => null),
     hasDraft: false,
+    workoutStartedAt: Date.now(),
   }),
   startMaxProgram: (movement, maximumReps) => {
     let sessionNumber = 1;
@@ -86,6 +92,7 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
       setReps: [...targetReps],
       savedExercises: targetReps.map(() => null),
       hasDraft: false,
+      workoutStartedAt: Date.now(),
     });
   },
   saveCurrentExercise: () => set((state) => {
@@ -104,7 +111,8 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
     savedExercises[workout.currentExercise] = workout.setReps[workout.currentExercise];
     try {
       const movementReps = workout.plan.type === 'max-program' ? totalReps : workout.plan.trackedMovement ? workout.setReps[0] : undefined;
-      saveCompletedWorkout({ routine: workout.plan.name, totalReps, movement: workout.plan.trackedMovement, movementReps, programOnly: workout.plan.type === 'max-program' });
+      const entries = toTrackedWorkoutEntries(workout.plan.labels, workout.setReps, workout.plan.type === 'max-program' ? workout.plan.trackedMovement : undefined);
+      saveCompletedWorkout({ routine: workout.plan.name, totalReps, entries, movement: workout.plan.trackedMovement, movementReps, programOnly: workout.plan.type === 'max-program' });
     } catch {
       // Offline state remains usable if SQLite is unavailable.
     }
@@ -112,6 +120,7 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
       lastWorkoutTotal: totalReps,
       lastWorkoutName: workout.plan.name,
       lastWorkoutSetCount: workout.plan.labels.length,
+      lastWorkoutDurationMinutes: workout.workoutStartedAt ? Math.max(1, Math.round((Date.now() - workout.workoutStartedAt) / 60000)) : null,
       savedExercises,
       hasDraft: true,
     });
@@ -122,5 +131,6 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
     setReps: [...defaultPlan.targetReps],
     savedExercises: defaultPlan.labels.map(() => null),
     hasDraft: false,
+    workoutStartedAt: null,
   }),
 }));

@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { movementProgramStatus, type MovementHistoryEntry, type MovementName } from '@/src/lib/progressMath';
+import type { MaximumTestEntry, StoredWorkout, TrackedWorkoutEntryInput } from '@/src/lib/statisticsMath';
 
 type CompletedWorkout = {
   routine: string;
@@ -8,6 +9,7 @@ type CompletedWorkout = {
   movementReps?: number;
   programOnly?: boolean;
   maximumTest?: boolean;
+  entries?: TrackedWorkoutEntryInput[];
 };
 
 const database = SQLite.openDatabaseSync('repbook.db');
@@ -30,6 +32,16 @@ export function initialiseLocalDb() {
       maximum_test INTEGER NOT NULL DEFAULT 0,
       recorded_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS workout_exercise_entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      workout_id INTEGER NOT NULL,
+      exercise TEXT NOT NULL CHECK (exercise IN ('Push-up', 'Pull-up', 'Squat')),
+      reps INTEGER NOT NULL,
+      set_index INTEGER NOT NULL,
+      FOREIGN KEY (workout_id) REFERENCES completed_workouts(id) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS workout_exercise_entries_workout_id ON workout_exercise_entries(workout_id);
+    CREATE INDEX IF NOT EXISTS workout_exercise_entries_exercise ON workout_exercise_entries(exercise);
   `);
   try {
     database.execSync('ALTER TABLE movement_history ADD COLUMN program_only INTEGER NOT NULL DEFAULT 0;');
@@ -73,11 +85,25 @@ export function getMovementProgramStatus(movement: MovementName) {
   return movementProgramStatus(getMovementHistory(), movement);
 }
 
-export function saveCompletedWorkout({ routine, totalReps, movement, movementReps, programOnly = false, maximumTest = false }: CompletedWorkout) {
+export function getStatisticsHistory(): { workouts: StoredWorkout[]; maximumTests: MaximumTestEntry[] } {
+  initialiseLocalDb();
+  const rows = database.getAllSync<{ workout_id: number; routine: string; completed_at: string; entry_id: number | null; exercise: 'Push-up' | 'Pull-up' | 'Squat' | null; reps: number | null; set_index: number | null }>(`SELECT completed_workouts.id AS workout_id, completed_workouts.routine, completed_workouts.completed_at, workout_exercise_entries.id AS entry_id, workout_exercise_entries.exercise, workout_exercise_entries.reps, workout_exercise_entries.set_index FROM completed_workouts LEFT JOIN workout_exercise_entries ON workout_exercise_entries.workout_id = completed_workouts.id ORDER BY completed_workouts.completed_at ASC, workout_exercise_entries.set_index ASC`);
+  const workouts = new Map<number, StoredWorkout>();
+  rows.forEach((row) => {
+    const workout = workouts.get(row.workout_id) ?? { id: row.workout_id, routine: row.routine, completedAt: row.completed_at, entries: [] };
+    if (row.entry_id !== null && row.exercise !== null && row.reps !== null && row.set_index !== null) workout.entries.push({ id: row.entry_id, exercise: row.exercise, reps: row.reps, setIndex: row.set_index });
+    workouts.set(row.workout_id, workout);
+  });
+  const maximumTests = getMovementHistory().filter((entry) => entry.kind === 'maximum').map((entry) => ({ id: entry.id, movement: entry.movement, reps: entry.reps, recordedAt: entry.recordedAt }));
+  return { workouts: [...workouts.values()], maximumTests };
+}
+
+export function saveCompletedWorkout({ routine, totalReps, movement, movementReps, programOnly = false, maximumTest = false, entries = [] }: CompletedWorkout) {
   initialiseLocalDb();
   const completedAt = new Date().toISOString();
-  database.runSync('INSERT INTO completed_workouts (routine, total_reps, completed_at) VALUES (?, ?, ?)', routine, totalReps, completedAt);
-  if (movement && movementReps !== undefined) {
-    database.runSync('INSERT INTO movement_history (movement, kind, reps, routine, program_only, maximum_test, recorded_at) VALUES (?, ?, ?, ?, ?, ?, ?)', movement, 'session', movementReps, routine, programOnly ? 1 : 0, maximumTest ? 1 : 0, completedAt);
-  }
+  database.withTransactionSync(() => {
+    const workoutId = database.runSync('INSERT INTO completed_workouts (routine, total_reps, completed_at) VALUES (?, ?, ?)', routine, totalReps, completedAt).lastInsertRowId;
+    entries.forEach((entry) => database.runSync('INSERT INTO workout_exercise_entries (workout_id, exercise, reps, set_index) VALUES (?, ?, ?, ?)', workoutId, entry.exercise, Math.max(0, Math.round(entry.reps)), entry.setIndex));
+    if (movement && movementReps !== undefined) database.runSync('INSERT INTO movement_history (movement, kind, reps, routine, program_only, maximum_test, recorded_at) VALUES (?, ?, ?, ?, ?, ?, ?)', movement, 'session', movementReps, routine, programOnly ? 1 : 0, maximumTest ? 1 : 0, completedAt);
+  });
 }
