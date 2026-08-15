@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { colors, fonts, spacing } from '@/src/theme';
+import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 type RepEditorModalProps = {
   visible: boolean;
@@ -12,6 +12,8 @@ type RepEditorModalProps = {
 };
 
 export function RepEditorModal({ visible, title, value, minimum = 0, onClose, onSave }: RepEditorModalProps) {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
   const [draft, setDraft] = useState(String(value));
   const [error, setError] = useState('');
 
@@ -45,6 +47,6 @@ export function RepEditorModal({ visible, title, value, minimum = 0, onClose, on
   </Modal>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: AppColors) => StyleSheet.create({
   overlay: { alignItems: 'center', backgroundColor: 'rgba(32, 32, 32, 0.52)', flex: 1, justifyContent: 'center', padding: spacing.lg }, sheet: { backgroundColor: colors.surface, borderTopColor: colors.ink, borderTopWidth: 3, padding: spacing.lg, width: '100%' }, title: { color: colors.ink, fontFamily: fonts.body, fontSize: 28, fontWeight: '800', letterSpacing: -0.5 }, input: { borderBottomColor: colors.accent, borderBottomWidth: 2, color: colors.accent, fontFamily: fonts.body, fontSize: 50, fontWeight: '800', letterSpacing: -1, lineHeight: 58, marginTop: spacing.lg, paddingVertical: spacing.xs, textAlign: 'center' }, error: { color: colors.error, fontFamily: fonts.body, fontSize: 13, marginTop: spacing.sm, textAlign: 'center' }, actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg }, cancel: { alignItems: 'center', borderColor: colors.ink, borderWidth: 1, flex: 1, justifyContent: 'center', minHeight: 48 }, cancelText: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' }, save: { alignItems: 'center', backgroundColor: colors.accent, flex: 1, justifyContent: 'center', minHeight: 48 }, saveText: { color: colors.white, fontFamily: fonts.body, fontSize: 14, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
 });

@@ -7,9 +7,11 @@ import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { RepEditorModal } from '@/src/components/RepEditorModal';
 import { restSecondsForSession } from '@/src/lib/progressMath';
 import { useWorkoutStore } from '@/src/stores/useWorkoutStore';
-import { colors, fonts, spacing } from '@/src/theme';
+import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 export default function WorkoutScreen() {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
   const plan = useWorkoutStore((state) => state.plan);
   const current = useWorkoutStore((state) => state.currentExercise);
   const reps = useWorkoutStore((state) => state.setReps[current]);
@@ -62,7 +64,7 @@ export default function WorkoutScreen() {
   </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: AppColors) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.instrument },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingTop: spacing.sm, marginBottom: spacing.md },
   close: { width: 44, height: 44, alignItems: 'flex-start', justifyContent: 'center' },

@@ -8,9 +8,11 @@ import { RepEditorModal } from '@/src/components/RepEditorModal';
 import { getMovementProgramStatus, saveMovementMaximum } from '@/src/lib/localDb';
 import { resolveProgramMovement } from '@/src/lib/movementProgram';
 import { buildMaxProgramTargets, MaxProgramMovement, useWorkoutStore } from '@/src/stores/useWorkoutStore';
-import { colors, fonts, spacing } from '@/src/theme';
+import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 export default function ProgramScreen() {
+  const { colors } = useAppTheme();
+  const styles = createStyles(colors);
   const { movement: movementParam } = useLocalSearchParams<{ movement?: string }>();
   const movement: MaxProgramMovement = resolveProgramMovement(movementParam);
   const programStatus = getMovementProgramStatus(movement);
@@ -40,6 +42,6 @@ export default function ProgramScreen() {
   </SafeAreaView>;
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: AppColors) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background }, content: { paddingHorizontal: spacing.lg, paddingBottom: 100 }, top: { alignItems: 'center', flexDirection: 'row', minHeight: 44, paddingTop: spacing.sm }, close: { alignItems: 'flex-start', height: 44, justifyContent: 'center', width: 44 }, topLabel: { color: colors.accent, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 1.1, marginLeft: spacing.xs }, intro: { marginTop: spacing.xl }, title: { color: colors.ink, fontFamily: fonts.body, fontSize: 42, fontWeight: '800', letterSpacing: -1 }, maximumBlock: { borderBottomColor: colors.ink, borderBottomWidth: 2, borderTopColor: colors.ink, borderTopWidth: 2, marginTop: spacing.xxl, paddingVertical: spacing.lg }, maximumLabel: { color: colors.muted, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 1, textAlign: 'center' }, maximumButton: { alignItems: 'center', marginTop: spacing.md, minHeight: 76, justifyContent: 'center' }, maximumValue: { color: colors.accent, fontFamily: fonts.body, fontSize: 64, fontWeight: '800', lineHeight: 68, textAlign: 'center' }, maximumUnit: { color: colors.muted, fontFamily: fonts.body, fontSize: 13, textAlign: 'center' }, plan: { marginTop: spacing.xl }, planHeader: { alignItems: 'baseline', flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm }, planTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 24, fontWeight: '800' }, planFormula: { color: colors.accent, fontFamily: fonts.body, fontSize: 11, fontWeight: '800' }, setRow: { alignItems: 'center', borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', minHeight: 56 }, setLabel: { color: colors.accent, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 0.8, width: 74 }, setPercentage: { color: colors.muted, flex: 1, fontFamily: fonts.body, fontSize: 14 }, setReps: { color: colors.ink, fontFamily: fonts.body, fontSize: 23, fontWeight: '800' }, footer: { backgroundColor: colors.background, borderTopColor: colors.border, borderTopWidth: 1, paddingBottom: spacing.sm, paddingHorizontal: spacing.lg, paddingTop: spacing.md }, pressed: { opacity: 0.64 },
 });
