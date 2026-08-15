@@ -18,19 +18,19 @@ export type MovementProgramStatus = {
 };
 
 const maxProgramProgressions = [
-  [0.6, 0.5, 0.44, 0.4, 0.34],
-  [0.66, 0.56, 0.5, 0.44, 0.4],
-  [0.7, 0.6, 0.56, 0.5, 0.44],
-  [0.72, 0.64, 0.6, 0.54, 0.48],
+  [58, 49, 43, 39, 33],
+  [62, 53, 47, 43, 38],
+  [66, 57, 51, 47, 42],
+  [70, 61, 55, 51, 46],
 ];
 
 export function buildMaxProgramTargets(maximumReps: number, sessionNumber = 1) {
   const progression = maxProgramProgressions[Math.min(Math.max(sessionNumber, 1), maxProgramProgressions.length) - 1];
-  return progression.map((multiplier) => Math.max(1, Math.round(maximumReps * multiplier)));
+  return progression.map((percentage) => Math.max(1, Math.round((maximumReps * percentage) / 100)));
 }
 
 export function restSecondsForSession(sessionNumber?: number) {
-  return 60 + Math.max((sessionNumber ?? 1) - 1, 0) * 30;
+  return 120 + (Math.min(Math.max(sessionNumber ?? 1, 1), 4) - 1) * 20;
 }
 
 const localDayKey = (value: Date) => `${value.getFullYear()}-${value.getMonth()}-${value.getDate()}`;
