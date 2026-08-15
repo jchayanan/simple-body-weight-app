@@ -1,4 +1,4 @@
-export type MovementName = 'Push-up' | 'Pull-up';
+export type MovementName = 'Push-up' | 'Pull-up' | 'Squat';
 
 export type MovementHistoryEntry = {
   id: number;

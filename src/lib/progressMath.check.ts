@@ -1,4 +1,5 @@
 import { buildMaxProgramTargets, maximumTimeline, movementProgramStatus, personalBest, restSecondsForSession, volumeTimeline } from './progressMath';
+import { resolveProgramMovement } from './movementProgram';
 
 const entries = [
   { id: 1, movement: 'Push-up' as const, kind: 'maximum' as const, reps: 20, recordedAt: '2026-08-12T08:00:00.000Z' },
@@ -16,5 +17,9 @@ if (buildMaxProgramTargets(50, 1).join(',') !== '30,25,22,20,17') throw new Erro
 if (buildMaxProgramTargets(50, 2).join(',') !== '33,28,25,22,20') throw new Error('Session 2 targets should progress volume.');
 if (buildMaxProgramTargets(50, 3).join(',') !== '35,30,28,25,22') throw new Error('Session 3 targets should progress volume.');
 if (restSecondsForSession(1) !== 60 || restSecondsForSession(2) !== 90) throw new Error('Rest should increase by session.');
+const squatEntry = { id: 10, movement: 'Squat' as const, kind: 'maximum' as const, reps: 20, recordedAt: '2026-08-15T08:00:00.000Z' };
+if (personalBest([squatEntry], 'Squat') !== 20) throw new Error('Squat should keep a separate personal best.');
+if (buildMaxProgramTargets(20, 1).length !== 5) throw new Error('Squat programs must contain five sets.');
+if (resolveProgramMovement('Squat') !== 'Squat') throw new Error('Squat must open its own focused program.');
 
 console.info('Progress calculations check passed.');
