@@ -73,7 +73,7 @@ function Metric({ label, value, last = false }: { label: string; value: number |
 
 const styles = StyleSheet.create({
   header: { marginBottom: spacing.xl, paddingTop: spacing.md },
-  title: { color: colors.ink, fontFamily: fonts.display, fontSize: 34 },
+  title: { color: colors.ink, fontFamily: fonts.body, fontSize: 36, fontWeight: '800', letterSpacing: -1.1 },
   subtitle: { color: colors.muted, fontFamily: fonts.body, fontSize: 15, lineHeight: 21, marginTop: spacing.xs },
   controlLabel: { color: colors.ink, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.7, marginBottom: spacing.sm, textTransform: 'uppercase' },
   controlScroller: { flexGrow: 0, flexShrink: 0, marginBottom: spacing.lg },
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   controlText: { color: colors.ink, fontFamily: fonts.body, fontSize: 13, fontWeight: '700' },
   controlTextActive: { color: colors.white },
   sectionHead: { alignItems: 'baseline', flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.md },
-  sectionTitle: { color: colors.ink, fontFamily: fonts.display, fontSize: 24 },
+  sectionTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 24, fontWeight: '800', letterSpacing: -0.4 },
   sectionNote: { color: colors.muted, fontFamily: fonts.body, fontSize: 11, textAlign: 'right' },
   inspection: { alignItems: 'flex-start', borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', paddingVertical: spacing.lg },
   inspectionMark: { height: 8, marginRight: spacing.md, marginTop: 6, width: 8 },
@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
   inspectionCopy: { flex: 1 },
   inspectionTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '800' },
   inspectionBody: { color: colors.muted, fontFamily: fonts.body, fontSize: 14, lineHeight: 21, marginTop: spacing.xs },
-  ledger: { borderTopColor: colors.border, borderTopWidth: 1, marginBottom: spacing.xl },
+  ledger: { borderTopColor: colors.ink, borderTopWidth: 2, marginBottom: spacing.xl },
   metric: { alignItems: 'baseline', borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 56 },
   metricLast: { borderBottomWidth: 0 },
   metricLabel: { color: colors.muted, fontFamily: fonts.body, fontSize: 14 },
-  metricValue: { color: colors.ink, fontFamily: fonts.display, fontSize: 22 },
+  metricValue: { color: colors.accent, fontFamily: fonts.body, fontSize: 25, fontWeight: '800', letterSpacing: -0.5 },
   empty: { borderBottomColor: colors.border, borderBottomWidth: 1, borderTopColor: colors.border, borderTopWidth: 1, paddingVertical: spacing.xl },
-  emptyTitle: { color: colors.ink, fontFamily: fonts.display, fontSize: 26 },
+  emptyTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
   emptyBody: { color: colors.muted, fontFamily: fonts.body, fontSize: 15, lineHeight: 22, marginTop: spacing.sm },
 });

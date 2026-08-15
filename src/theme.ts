@@ -10,6 +10,9 @@ export const colors = {
   success: '#687560',
   error: '#9E514A',
   white: '#F6F5F2',
+  instrument: '#171717',
+  instrumentMuted: '#AAA6A0',
+  segmentOff: '#3B3936',
 };
 
 export const spacing = { xs: 6, sm: 10, md: 16, lg: 24, xl: 32, xxl: 44 };

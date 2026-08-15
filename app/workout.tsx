@@ -7,7 +7,7 @@ import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { RepEditorModal } from '@/src/components/RepEditorModal';
 import { restSecondsForSession } from '@/src/lib/progressMath';
 import { useWorkoutStore } from '@/src/stores/useWorkoutStore';
-import { colors, fonts, radii, spacing } from '@/src/theme';
+import { colors, fonts, spacing } from '@/src/theme';
 
 export default function WorkoutScreen() {
   const plan = useWorkoutStore((state) => state.plan);
@@ -50,8 +50,8 @@ export default function WorkoutScreen() {
   }
 
   return <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
-    <View style={styles.top}><Pressable accessibilityLabel="Close and keep workout draft" accessibilityRole="button" onPress={() => router.back()} style={styles.close}><Ionicons name="close" size={23} color={colors.ink} /></Pressable><Text style={styles.topTitle}>{plan.name.toUpperCase()}</Text><Text style={styles.progressLabel}>{isMaxProgram ? 'Set' : 'Exercise'} {current + 1} of {exerciseNames.length}</Text></View>
-    <View style={styles.progressTrack}><View style={[styles.progressFill, { width: `${((current + 1) / exerciseNames.length) * 100}%` }]} /></View>
+    <View style={styles.top}><Pressable accessibilityLabel="Close and keep workout draft" accessibilityRole="button" onPress={() => router.back()} style={styles.close}><Ionicons name="close" size={23} color={colors.white} /></Pressable><Text style={styles.topTitle}>{plan.name.toUpperCase()}</Text><Text style={styles.progressLabel}>{isMaxProgram ? 'Set' : 'Exercise'} {current + 1} of {exerciseNames.length}</Text></View>
+    <View style={styles.progressTrack}>{exerciseNames.map((_, index) => <View key={index} style={[styles.segment, index <= current && styles.segmentLit]} />)}</View>
     <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       {savedExercises.some((entry) => entry !== null) ? <View style={styles.sessionLog}>{savedExercises.map((entry, index) => entry === null ? null : <View key={exerciseNames[index]} style={styles.savedRow}><Text style={styles.savedName}>{exerciseNames[index]}</Text><Text style={styles.savedValue}>{entry} reps</Text></View>)}</View> : null}
       <View style={styles.exerciseHeader}><Text style={styles.exerciseTitle}>{isMaxProgram ? plan.movement : currentLabel}</Text><Text style={styles.range}>{isMaxProgram ? `Target ${plan.targetReps[current]} reps` : 'Aim for 8–14 reps'}</Text></View>
@@ -63,38 +63,37 @@ export default function WorkoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
+  safeArea: { flex: 1, backgroundColor: colors.instrument },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingTop: spacing.sm, marginBottom: spacing.md },
   close: { width: 44, height: 44, alignItems: 'flex-start', justifyContent: 'center' },
-  topTitle: { color: colors.muted, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.8 },
-  progressLabel: { color: colors.ink, fontFamily: fonts.body, fontSize: 12, fontWeight: '700' },
-  progressTrack: { height: 4, backgroundColor: colors.border, marginBottom: spacing.xl },
-  progressFill: { height: 4, backgroundColor: colors.accent },
+  topTitle: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.8 },
+  progressLabel: { color: colors.white, fontFamily: fonts.body, fontSize: 12, fontWeight: '700' },
+  progressTrack: { flexDirection: 'row', gap: 5, paddingHorizontal: spacing.lg, marginBottom: spacing.xl }, segment: { backgroundColor: colors.segmentOff, flex: 1, height: 6 }, segmentLit: { backgroundColor: colors.accent },
   content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
-  sessionLog: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.border, marginBottom: spacing.xl },
-  savedRow: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: colors.border },
-  savedName: { color: colors.muted, fontFamily: fonts.body, fontSize: 13 },
+  sessionLog: { borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.segmentOff, marginBottom: spacing.xl },
+  savedRow: { minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: colors.segmentOff },
+  savedName: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 13 },
   savedValue: { color: colors.success, fontFamily: fonts.body, fontSize: 13, fontWeight: '700' },
   exerciseHeader: { alignItems: 'center', marginBottom: spacing.lg },
-  exerciseTitle: { color: colors.ink, fontFamily: fonts.display, fontSize: 35, textAlign: 'center' },
-  range: { color: colors.muted, fontFamily: fonts.body, fontSize: 14, fontWeight: '700', marginTop: spacing.sm },
-  repBlock: { backgroundColor: colors.surface, borderRadius: radii.md, alignItems: 'center', paddingVertical: spacing.xl, marginBottom: spacing.lg },
-  repLabel: { color: colors.muted, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.8 },
+  exerciseTitle: { color: colors.white, fontFamily: fonts.body, fontSize: 35, fontWeight: '800', textAlign: 'center' },
+  range: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 14, fontWeight: '700', marginTop: spacing.sm },
+  repBlock: { backgroundColor: '#202020', borderWidth: 1, borderColor: colors.segmentOff, alignItems: 'center', paddingVertical: spacing.xl, marginBottom: spacing.lg },
+  repLabel: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.8 },
   repButton: { alignItems: 'center', marginTop: spacing.sm, minHeight: 112, justifyContent: 'center' },
   repValue: { color: colors.accent, fontFamily: fonts.display, fontSize: 86, lineHeight: 96 },
-  repHint: { color: colors.muted, fontFamily: fonts.body, fontSize: 12 },
-  previous: { borderBottomWidth: 1, borderTopWidth: 1, borderColor: colors.border, paddingVertical: spacing.md, flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm, marginBottom: spacing.lg },
-  previousLabel: { color: colors.muted, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },
-  previousValue: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '700' },
-  previousNote: { color: colors.muted, fontFamily: fonts.body, fontSize: 12 },
-  restScreen: { backgroundColor: colors.background, flex: 1, justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.xl },
+  repHint: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12 },
+  previous: { borderBottomWidth: 1, borderTopWidth: 1, borderColor: colors.segmentOff, paddingVertical: spacing.md, flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm, marginBottom: spacing.lg },
+  previousLabel: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },
+  previousValue: { color: colors.white, fontFamily: fonts.body, fontSize: 14, fontWeight: '700' },
+  previousNote: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12 },
+  restScreen: { backgroundColor: colors.instrument, flex: 1, justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.xl },
   restScreenContent: { alignItems: 'center', flex: 1, justifyContent: 'center' },
   restScreenSaved: { color: colors.success, fontFamily: fonts.body, fontSize: 14, fontWeight: '700' },
   restScreenValue: { color: colors.accent, fontFamily: fonts.display, fontSize: 136, lineHeight: 146, marginTop: spacing.md },
-  restScreenUnit: { color: colors.muted, fontFamily: fonts.body, fontSize: 15 },
-  skipRest: { alignItems: 'center', borderColor: colors.border, borderRadius: radii.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52 },
-  skipRestText: { color: colors.ink, fontFamily: fonts.body, fontSize: 15, fontWeight: '700' },
-  footer: { borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.sm, backgroundColor: colors.background },
-  footerNote: { color: colors.muted, fontFamily: fonts.body, fontSize: 12, lineHeight: 18, textAlign: 'center', marginTop: spacing.sm },
+  restScreenUnit: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 15 },
+  skipRest: { alignItems: 'center', borderColor: colors.segmentOff, borderWidth: 1, justifyContent: 'center', minHeight: 52 },
+  skipRestText: { color: colors.white, fontFamily: fonts.body, fontSize: 15, fontWeight: '700' },
+  footer: { borderTopWidth: 1, borderTopColor: colors.segmentOff, paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.sm, backgroundColor: colors.instrument },
+  footerNote: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12, lineHeight: 18, textAlign: 'center', marginTop: spacing.sm },
   pressed: { opacity: 0.64 },
 });
