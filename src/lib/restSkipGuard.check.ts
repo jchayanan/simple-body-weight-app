@@ -1,5 +1,13 @@
 import { createRestSkipGuard } from './restSkipGuard';
 
+const actionGuard = createRestSkipGuard();
+
+if (!actionGuard.beginAction()) throw new Error('The first save-and-rest press should be accepted.');
+if (actionGuard.canBeginAction()) throw new Error('A second save-and-rest press must be blocked until the rest screen is visible.');
+if (actionGuard.beginAction()) throw new Error('Rapid repeated save-and-rest presses must be ignored.');
+actionGuard.release();
+if (!actionGuard.canBeginAction()) throw new Error('Workout actions should resume after the transition lock releases.');
+
 const guard = createRestSkipGuard();
 
 if (!guard.canContinueWorkout()) throw new Error('Workout actions should be available before rest is skipped.');

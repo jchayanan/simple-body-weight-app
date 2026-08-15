@@ -1,15 +1,18 @@
 export function createRestSkipGuard() {
-  let isSkippingRest = false;
+  let isActionInProgress = false;
+  const beginAction = () => {
+    if (isActionInProgress) return false;
+    isActionInProgress = true;
+    return true;
+  };
 
   return {
-    beginSkip: () => {
-      if (isSkippingRest) return false;
-      isSkippingRest = true;
-      return true;
-    },
-    canContinueWorkout: () => !isSkippingRest,
+    beginAction,
+    canBeginAction: () => !isActionInProgress,
+    beginSkip: beginAction,
+    canContinueWorkout: () => !isActionInProgress,
     release: () => {
-      isSkippingRest = false;
+      isActionInProgress = false;
     },
   };
 }
