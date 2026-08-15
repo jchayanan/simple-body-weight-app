@@ -8,9 +8,10 @@ export default function TodayScreen() {
   return <Screen>
     <View style={styles.header}><Text style={styles.date}>WEDNESDAY, 14 AUGUST</Text><Text style={styles.title}>Train today.</Text><Text style={styles.weekStatus}>2 sessions this week</Text></View>
     <View style={styles.programHero}><Text style={styles.programHeroTitle}>Choose your focus.</Text>{[
-      { movement: 'Push-up', note: 'Four sets from your tested maximum', icon: 'arrow-up-outline' },
-      { movement: 'Pull-up', note: 'Four sets from your tested maximum', icon: 'arrow-down-outline' },
-    ].map((program) => <Pressable key={program.movement} accessibilityRole="button" accessibilityLabel={`Set up ${program.movement} only program`} accessibilityHint="Starts your focused four-set program" onPress={() => router.push({ pathname: '/program', params: { movement: program.movement } })} style={({ pressed }) => [styles.programHeroRow, pressed && styles.pressed]}><View style={styles.programHeroIcon}><Ionicons name={program.icon as keyof typeof Ionicons.glyphMap} size={25} color={colors.accent} /></View><View style={styles.programHeroCopy}><Text style={styles.programHeroName}>{program.movement} only</Text><Text style={styles.programHeroNote}>{program.note}</Text></View><Ionicons name="arrow-forward" size={21} color={colors.ink} /></Pressable>)}</View>
+      { movement: 'Push-up', note: 'Five sets from your tested maximum', icon: 'arrow-up-outline' },
+      { movement: 'Pull-up', note: 'Five sets from your tested maximum', icon: 'arrow-down-outline' },
+      { movement: 'Squat', note: 'Five sets from your tested maximum', icon: 'barbell-outline' },
+    ].map((program) => <Pressable key={program.movement} accessibilityRole="button" accessibilityLabel={`Set up ${program.movement} only program`} accessibilityHint="Starts your focused five-set program" onPress={() => router.push({ pathname: '/program', params: { movement: program.movement } })} style={({ pressed }) => [styles.programHeroRow, pressed && styles.pressed]}><View style={styles.programHeroIcon}><Ionicons name={program.icon as keyof typeof Ionicons.glyphMap} size={25} color={colors.accent} /></View><View style={styles.programHeroCopy}><Text style={styles.programHeroName}>{program.movement} only</Text><Text style={styles.programHeroNote}>{program.note}</Text></View><Ionicons name="arrow-forward" size={21} color={colors.ink} /></Pressable>)}</View>
   </Screen>;
 }
 

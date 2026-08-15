@@ -6,12 +6,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { RepEditorModal } from '@/src/components/RepEditorModal';
 import { getMovementProgramStatus, saveMovementMaximum } from '@/src/lib/localDb';
+import { resolveProgramMovement } from '@/src/lib/movementProgram';
 import { buildMaxProgramTargets, MaxProgramMovement, useWorkoutStore } from '@/src/stores/useWorkoutStore';
 import { colors, fonts, spacing } from '@/src/theme';
 
 export default function ProgramScreen() {
   const { movement: movementParam } = useLocalSearchParams<{ movement?: string }>();
-  const movement: MaxProgramMovement = movementParam === 'Pull-up' ? 'Pull-up' : 'Push-up';
+  const movement: MaxProgramMovement = resolveProgramMovement(movementParam);
   const programStatus = getMovementProgramStatus(movement);
   const [maximumReps, setMaximumReps] = useState(() => programStatus.maximum || (movement === 'Pull-up' ? 8 : 20));
   const [isMaximumEditorOpen, setIsMaximumEditorOpen] = useState(false);
