@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { RepEditorModal } from '@/src/components/RepEditorModal';
 import { restSecondsForSession } from '@/src/lib/progressMath';
+import { formatCountdown } from '@/src/lib/time';
 import { useWorkoutStore } from '@/src/stores/useWorkoutStore';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
@@ -46,7 +47,7 @@ export default function WorkoutScreen() {
 
   if (seconds > 0 && lastSaved) {
     return <SafeAreaView edges={['top', 'bottom']} style={styles.restScreen}>
-      <View style={styles.restScreenContent}><Text style={styles.restScreenSaved}>{lastSaved.name} saved</Text><Text accessibilityLiveRegion="polite" style={styles.restScreenValue}>{seconds}</Text><Text style={styles.restScreenUnit}>seconds</Text></View>
+      <View style={styles.restScreenContent}><Text style={styles.restScreenSaved}>{lastSaved.name} saved</Text><Text accessibilityLiveRegion="polite" style={styles.restScreenValue}>{formatCountdown(seconds)}</Text><Text style={styles.restScreenUnit}>remaining</Text></View>
       <Pressable accessibilityRole="button" accessibilityLabel="Skip rest" onPress={() => setSeconds(0)} style={({ pressed }) => [styles.skipRest, pressed && styles.pressed]}><Text style={styles.skipRestText}>Skip rest</Text></Pressable>
     </SafeAreaView>;
   }
