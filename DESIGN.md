@@ -14,7 +14,7 @@ Repbook is a quiet training journal translated from a paper workout log. The dir
 - Background and surfaces: Warm White `#F6F5F2`.
 - Display voice: serif for journal-like exercise and session titles.
 - Body voice: platform sans for legibility and quick scanning.
-- Black `#202020` carries type, navigation, and structural emphasis. Muted Red `#B9584F` is only for primary actions; never use vivid red. Success remains olive `#687560`.
+- Black `#202020` carries type and structural emphasis. Muted Red `#B9584F` marks primary actions plus important active, current, and progress states; never use vivid red. Success remains olive `#687560`.
 
 ## Quality bar
 

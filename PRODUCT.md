@@ -41,7 +41,7 @@ Users are breathing heavily, moving between sets, and interacting quickly on a p
 - Product feel: simple, calm, fast, practical, lightweight, and focused on training.
 - Visual direction: Paper & Ink / digital training journal.
 - Palette: warm white background and surface #F6F5F2, primary text #202020, primary-action accent #B9584F, muted text #706F6B, border #D9D7D2, success #687560, error #9E514A.
-- Muted Red is reserved for primary actions only. Navigation, progress, and current-state indicators use Black or their semantic color. Do not use vivid red (#FF0000).
+- Muted Red marks primary actions and important active, current, and progress states. Do not use vivid red (#FF0000).
 
 ## Evidence on Hand
 
