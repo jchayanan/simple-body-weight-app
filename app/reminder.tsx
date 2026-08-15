@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/src/components/Screen';
+import { getStoredReminder, storeReminder } from '@/src/lib/reminderPreferences';
 import { scheduleTrainingReminders } from '@/src/lib/trainingReminders';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
@@ -13,9 +14,9 @@ const weekdays = [
 export default function ReminderScreen() {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
-  const [days, setDays] = useState([2, 4, 6]);
-  const [hour, setHour] = useState(7);
-  const [minute, setMinute] = useState(0);
+  const [days, setDays] = useState(() => getStoredReminder().days);
+  const [hour, setHour] = useState(() => getStoredReminder().hour);
+  const [minute, setMinute] = useState(() => getStoredReminder().minute);
   const [status, setStatus] = useState('Choose when Repbook should nudge you to train.');
   const [saving, setSaving] = useState(false);
   const toggleDay = (day: number) => setDays((current) => current.includes(day) ? current.filter((value) => value !== day) : [...current, day]);
@@ -24,7 +25,7 @@ export default function ReminderScreen() {
     setSaving(true);
     try {
       const result = await scheduleTrainingReminders({ days, hour, minute });
-      if (result.scheduled) { router.back(); return; }
+      if (result.scheduled) { storeReminder({ days, hour, minute }); router.back(); return; }
       setStatus(result.reason);
     } catch { setStatus('Could not save reminders. Try again.'); } finally { setSaving(false); }
   };
