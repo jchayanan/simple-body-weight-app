@@ -7,4 +7,4 @@ export function Screen({ children, scroll = true }: PropsWithChildren<{ scroll?:
   return <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>{scroll ? <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>{children}</ScrollView> : <View style={styles.content}>{children}</View>}</SafeAreaView>;
 }
 
-const styles = StyleSheet.create({ safeArea: { flex: 1, backgroundColor: colors.background }, content: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl } });
+const styles = StyleSheet.create({ safeArea: { flex: 1, backgroundColor: colors.background }, content: { flexGrow: 1, paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl } });
