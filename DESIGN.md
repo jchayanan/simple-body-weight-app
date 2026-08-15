@@ -1,6 +1,6 @@
 # Repbook visual direction
 
-Repbook is a quiet training journal translated from a paper workout log. The assigned direction from the degraded Impeccable direction roll is an annotated training logbook: strong type, ruled dividers, one useful surface at a time, and burnt orange reserved for action and progress.
+Repbook is a quiet training journal translated from a paper workout log. The direction is athletic minimal: strong type, ruled dividers, one useful surface at a time, and muted red reserved strictly for primary action.
 
 ## Composition
 
@@ -11,11 +11,10 @@ Repbook is a quiet training journal translated from a paper workout log. The ass
 
 ## Material and type
 
-- Background: warm paper `#EFECE5`.
-- Surfaces: warm off-white `#F7F4EE`.
+- Background and surfaces: Warm White `#F6F5F2`.
 - Display voice: serif for journal-like exercise and session titles.
 - Body voice: platform sans for legibility and quick scanning.
-- Accent: burnt orange `#C46A3A`; success: olive `#6F7D61`.
+- Black `#202020` carries type, navigation, and structural emphasis. Muted Red `#B9584F` is only for primary actions; never use vivid red. Success remains olive `#687560`.
 
 ## Quality bar
 

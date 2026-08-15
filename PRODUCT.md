@@ -40,8 +40,8 @@ Users are breathing heavily, moving between sets, and interacting quickly on a p
 
 - Product feel: simple, calm, fast, practical, lightweight, and focused on training.
 - Visual direction: Paper & Ink / digital training journal.
-- Palette: background #EFECE5, primary text #1D1D1B, accent #C46A3A, surface #F7F4EE, muted text #77736C, border #D8D3C9, success #6F7D61, error #A85449.
-- Burnt Orange is reserved for the main start action, active state, current progression, personal records, and meaningful progress.
+- Palette: warm white background and surface #F6F5F2, primary text #202020, primary-action accent #B9584F, muted text #706F6B, border #D9D7D2, success #687560, error #9E514A.
+- Muted Red is reserved for primary actions only. Navigation, progress, and current-state indicators use Black or their semantic color. Do not use vivid red (#FF0000).
 
 ## Evidence on Hand
 

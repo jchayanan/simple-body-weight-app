@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   sectionNote: { color: colors.muted, fontFamily: fonts.body, fontSize: 11, textAlign: 'right' },
   inspection: { alignItems: 'flex-start', borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', paddingVertical: spacing.lg },
   inspectionMark: { height: 8, marginRight: spacing.md, marginTop: 6, width: 8 },
-  trainingMark: { backgroundColor: colors.accent },
+  trainingMark: { backgroundColor: colors.ink },
   maximumMark: { backgroundColor: colors.success },
   inspectionCopy: { flex: 1 },
   inspectionTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '800' },
