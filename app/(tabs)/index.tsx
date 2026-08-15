@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { PushUpIcon } from '@/src/components/PushUpIcon';
+import { PullUpIcon } from '@/src/components/PullUpIcon';
 import { Screen } from '@/src/components/Screen';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
@@ -14,7 +15,7 @@ export default function TodayScreen() {
       { movement: 'Push-up', note: 'Five sets from your tested maximum', icon: 'arrow-up-outline' },
       { movement: 'Pull-up', note: 'Five sets from your tested maximum', icon: 'arrow-down-outline' },
       { movement: 'Squat', note: 'Five sets from your tested maximum', icon: 'barbell-outline' },
-    ].map((program) => <Pressable key={program.movement} accessibilityRole="button" accessibilityLabel={`Set up ${program.movement} program`} accessibilityHint="Starts your focused five-set program" onPress={() => router.push({ pathname: '/program', params: { movement: program.movement } })} style={({ pressed }) => [styles.programHeroRow, pressed && styles.pressed]}><View style={styles.programHeroIcon}>{program.movement === 'Push-up' ? <PushUpIcon color={colors.white} size={29} /> : <Ionicons name={program.icon as keyof typeof Ionicons.glyphMap} size={25} color={colors.white} />}</View><View style={styles.programHeroCopy}><Text style={styles.programHeroName}>{program.movement}</Text><Text style={styles.programHeroNote}>{program.note}</Text></View><Ionicons name="arrow-forward" size={21} color={colors.accent} /></Pressable>)}</View>
+    ].map((program) => <Pressable key={program.movement} accessibilityRole="button" accessibilityLabel={`Set up ${program.movement} program`} accessibilityHint="Starts your focused five-set program" onPress={() => router.push({ pathname: '/program', params: { movement: program.movement } })} style={({ pressed }) => [styles.programHeroRow, pressed && styles.pressed]}><View style={styles.programHeroIcon}>{program.movement === 'Push-up' ? <PushUpIcon color={colors.white} size={29} /> : program.movement === 'Pull-up' ? <PullUpIcon color={colors.white} size={29} /> : <Ionicons name={program.icon as keyof typeof Ionicons.glyphMap} size={25} color={colors.white} />}</View><View style={styles.programHeroCopy}><Text style={styles.programHeroName}>{program.movement}</Text><Text style={styles.programHeroNote}>{program.note}</Text></View><Ionicons name="arrow-forward" size={21} color={colors.accent} /></Pressable>)}</View>
   </Screen>;
 }
 
