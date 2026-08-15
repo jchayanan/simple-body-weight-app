@@ -112,7 +112,7 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
     try {
       const movementReps = workout.plan.type === 'max-program' ? totalReps : workout.plan.trackedMovement ? workout.setReps[0] : undefined;
       const entries = toTrackedWorkoutEntries(workout.plan.labels, workout.setReps, workout.plan.type === 'max-program' ? workout.plan.trackedMovement : undefined);
-      saveCompletedWorkout({ routine: workout.plan.name, totalReps, entries, movement: workout.plan.trackedMovement, movementReps, programOnly: workout.plan.type === 'max-program' });
+      saveCompletedWorkout({ routine: workout.plan.name, totalReps, entries, movement: workout.plan.trackedMovement, movementReps, maximumProgram: workout.plan.type === 'max-program' });
     } catch {
       // Offline state remains usable if SQLite is unavailable.
     }

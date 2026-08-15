@@ -7,7 +7,7 @@ type CompletedWorkout = {
   totalReps: number;
   movement?: MovementName;
   movementReps?: number;
-  programOnly?: boolean;
+  maximumProgram?: boolean;
   maximumTest?: boolean;
   entries?: TrackedWorkoutEntryInput[];
 };
@@ -28,7 +28,7 @@ export function initialiseLocalDb() {
       kind TEXT NOT NULL,
       reps INTEGER NOT NULL,
       routine TEXT,
-      program_only INTEGER NOT NULL DEFAULT 0,
+      maximum_program INTEGER NOT NULL DEFAULT 0,
       maximum_test INTEGER NOT NULL DEFAULT 0,
       recorded_at TEXT NOT NULL
     );
@@ -44,9 +44,14 @@ export function initialiseLocalDb() {
     CREATE INDEX IF NOT EXISTS workout_exercise_entries_exercise ON workout_exercise_entries(exercise);
   `);
   try {
-    database.execSync('ALTER TABLE movement_history ADD COLUMN program_only INTEGER NOT NULL DEFAULT 0;');
+    database.execSync('ALTER TABLE movement_history ADD COLUMN maximum_program INTEGER NOT NULL DEFAULT 0;');
   } catch {
     // Existing databases already have this column.
+  }
+  try {
+    database.execSync('UPDATE movement_history SET maximum_program = program_only WHERE program_only = 1;');
+  } catch {
+    // New databases do not have the retired column.
   }
   try {
     database.execSync('ALTER TABLE movement_history ADD COLUMN maximum_test INTEGER NOT NULL DEFAULT 0;');
@@ -69,13 +74,13 @@ export function getMovementMaximum(movement: MovementName) {
 
 export function getMovementHistory(): MovementHistoryEntry[] {
   initialiseLocalDb();
-  return database.getAllSync<{ id: number; movement: MovementName; kind: 'maximum' | 'session'; reps: number; routine: string | null; program_only: number; maximum_test: number; recorded_at: string }>('SELECT id, movement, kind, reps, routine, program_only, maximum_test, recorded_at FROM movement_history ORDER BY recorded_at DESC').map((entry) => ({
+  return database.getAllSync<{ id: number; movement: MovementName; kind: 'maximum' | 'session'; reps: number; routine: string | null; maximum_program: number; maximum_test: number; recorded_at: string }>('SELECT id, movement, kind, reps, routine, maximum_program, maximum_test, recorded_at FROM movement_history ORDER BY recorded_at DESC').map((entry) => ({
     id: entry.id,
     movement: entry.movement,
     kind: entry.kind,
     reps: entry.reps,
     routine: entry.routine ?? undefined,
-    programOnly: entry.program_only === 1,
+    maximumProgram: entry.maximum_program === 1,
     maximumTest: entry.maximum_test === 1,
     recordedAt: entry.recorded_at,
   }));
@@ -98,12 +103,12 @@ export function getStatisticsHistory(): { workouts: StoredWorkout[]; maximumTest
   return { workouts: [...workouts.values()], maximumTests };
 }
 
-export function saveCompletedWorkout({ routine, totalReps, movement, movementReps, programOnly = false, maximumTest = false, entries = [] }: CompletedWorkout) {
+export function saveCompletedWorkout({ routine, totalReps, movement, movementReps, maximumProgram = false, maximumTest = false, entries = [] }: CompletedWorkout) {
   initialiseLocalDb();
   const completedAt = new Date().toISOString();
   database.withTransactionSync(() => {
     const workoutId = database.runSync('INSERT INTO completed_workouts (routine, total_reps, completed_at) VALUES (?, ?, ?)', routine, totalReps, completedAt).lastInsertRowId;
     entries.forEach((entry) => database.runSync('INSERT INTO workout_exercise_entries (workout_id, exercise, reps, set_index) VALUES (?, ?, ?, ?)', workoutId, entry.exercise, Math.max(0, Math.round(entry.reps)), entry.setIndex));
-    if (movement && movementReps !== undefined) database.runSync('INSERT INTO movement_history (movement, kind, reps, routine, program_only, maximum_test, recorded_at) VALUES (?, ?, ?, ?, ?, ?, ?)', movement, 'session', movementReps, routine, programOnly ? 1 : 0, maximumTest ? 1 : 0, completedAt);
+    if (movement && movementReps !== undefined) database.runSync('INSERT INTO movement_history (movement, kind, reps, routine, maximum_program, maximum_test, recorded_at) VALUES (?, ?, ?, ?, ?, ?, ?)', movement, 'session', movementReps, routine, maximumProgram ? 1 : 0, maximumTest ? 1 : 0, completedAt);
   });
 }

@@ -7,7 +7,7 @@ export type MovementHistoryEntry = {
   reps: number;
   recordedAt: string;
   routine?: string;
-  programOnly?: boolean;
+  maximumProgram?: boolean;
   maximumTest?: boolean;
 };
 
@@ -66,6 +66,6 @@ export function maximumTimeline(entries: MovementHistoryEntry[]) {
 export function movementProgramStatus(entries: MovementHistoryEntry[], movement: MovementName): MovementProgramStatus {
   const latestMaximum = entries.filter((entry) => entry.movement === movement && entry.kind === 'maximum').sort((a, b) => b.recordedAt.localeCompare(a.recordedAt))[0];
   if (!latestMaximum) return { maximum: 0, sessionsSinceMaximum: 0, requiresMaximumTest: true };
-  const sessionsSinceMaximum = entries.filter((entry) => entry.movement === movement && entry.kind === 'session' && entry.programOnly && !entry.maximumTest && entry.recordedAt > latestMaximum.recordedAt).length;
+  const sessionsSinceMaximum = entries.filter((entry) => entry.movement === movement && entry.kind === 'session' && entry.maximumProgram && !entry.maximumTest && entry.recordedAt > latestMaximum.recordedAt).length;
   return { maximum: latestMaximum.reps, sessionsSinceMaximum, requiresMaximumTest: sessionsSinceMaximum >= 4 };
 }

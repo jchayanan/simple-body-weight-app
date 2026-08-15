@@ -6,7 +6,7 @@ type CompletedWorkout = {
   totalReps: number;
   movement?: MovementName;
   movementReps?: number;
-  programOnly?: boolean;
+  maximumProgram?: boolean;
   maximumTest?: boolean;
   entries?: TrackedWorkoutEntryInput[];
 };
@@ -74,11 +74,11 @@ export function getStatisticsHistory(): { workouts: StoredWorkout[]; maximumTest
   };
 }
 
-export function saveCompletedWorkout({ movement, movementReps, routine, totalReps, programOnly, maximumTest, entries = [] }: CompletedWorkout) {
+export function saveCompletedWorkout({ movement, movementReps, routine, totalReps, maximumProgram, maximumTest, entries = [] }: CompletedWorkout) {
   const completedAt = new Date().toISOString();
   const workoutId = Date.now();
   const workouts = readWorkouts();
   workouts.push({ id: workoutId, routine, completedAt, entries: entries.map((entry, index) => ({ ...entry, id: workoutId * 100 + index })) });
   writeWorkouts(workouts);
-  if (movement && movementReps !== undefined) addEntry({ movement, kind: 'session', reps: movementReps, routine, programOnly, maximumTest });
+  if (movement && movementReps !== undefined) addEntry({ movement, kind: 'session', reps: movementReps, routine, maximumProgram, maximumTest });
 }
