@@ -1,14 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { RepEditorModal } from '@/src/components/RepEditorModal';
 import { restSecondsForSession } from '@/src/lib/progressMath';
+import { createRestSkipGuard } from '@/src/lib/restSkipGuard';
 import { formatCountdown } from '@/src/lib/time';
 import { useWorkoutStore } from '@/src/stores/useWorkoutStore';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
+
+const restSkipLockMilliseconds = 400;
 
 export default function WorkoutScreen() {
   const { colors } = useAppTheme();
@@ -23,6 +26,9 @@ export default function WorkoutScreen() {
   const [seconds, setSeconds] = useState(0);
   const [lastSaved, setLastSaved] = useState<{ name: string; reps: number } | null>(null);
   const [isRepEditorOpen, setIsRepEditorOpen] = useState(false);
+  const [isRestSkipLocked, setIsRestSkipLocked] = useState(false);
+  const restSkipGuard = useRef(createRestSkipGuard());
+  const restSkipReleaseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exerciseNames = plan.labels;
   const currentLabel = exerciseNames[current];
   const isMaxProgram = plan.type === 'max-program';
@@ -33,6 +39,10 @@ export default function WorkoutScreen() {
     const timer = setInterval(() => setSeconds((value) => Math.max(0, value - 1)), 1000);
     return () => clearInterval(timer);
   }, [seconds]);
+
+  useEffect(() => () => {
+    if (restSkipReleaseTimer.current) clearTimeout(restSkipReleaseTimer.current);
+  }, []);
 
   const saveAndContinue = () => {
     setLastSaved({ name: currentLabel, reps });
@@ -45,10 +55,26 @@ export default function WorkoutScreen() {
     router.replace('/complete');
   };
 
+  const skipRest = () => {
+    if (!restSkipGuard.current.beginSkip()) return;
+    setIsRestSkipLocked(true);
+    setSeconds(0);
+    restSkipReleaseTimer.current = setTimeout(() => {
+      restSkipGuard.current.release();
+      setIsRestSkipLocked(false);
+    }, restSkipLockMilliseconds);
+  };
+
+  const continueWorkout = () => {
+    if (!restSkipGuard.current.canContinueWorkout()) return;
+    if (current === exerciseNames.length - 1) finish();
+    else saveAndContinue();
+  };
+
   if (seconds > 0 && lastSaved) {
     return <SafeAreaView edges={['top', 'bottom']} style={styles.restScreen}>
       <View style={styles.restScreenContent}><Text style={styles.restScreenSaved}>{lastSaved.name} saved</Text><Text accessibilityLiveRegion="polite" style={styles.restScreenValue}>{formatCountdown(seconds)}</Text><Text style={styles.restScreenUnit}>remaining</Text></View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Skip rest" onPress={() => setSeconds(0)} style={({ pressed }) => [styles.skipRest, pressed && styles.pressed]}><Text style={styles.skipRestText}>Skip rest</Text></Pressable>
+      <Pressable accessibilityRole="button" accessibilityLabel="Skip rest" accessibilityState={{ disabled: isRestSkipLocked }} disabled={isRestSkipLocked} onPress={skipRest} style={({ pressed }) => [styles.skipRest, (pressed || isRestSkipLocked) && styles.pressed]}><Text style={styles.skipRestText}>Skip rest</Text></Pressable>
     </SafeAreaView>;
   }
 
@@ -61,7 +87,7 @@ export default function WorkoutScreen() {
       <View style={styles.repBlock}><Text style={styles.repLabel}>THIS SET</Text><Pressable accessibilityRole="button" accessibilityLabel={`Edit reps, currently ${reps}`} accessibilityHint="Opens a number input" onPress={() => setIsRepEditorOpen(true)} style={({ pressed }) => [styles.repButton, pressed && styles.pressed]}><Text accessibilityLiveRegion="polite" style={styles.repValue}>{reps}</Text><Text style={styles.repHint}>tap to edit</Text></Pressable></View>
       <View style={styles.previous}><Text style={styles.previousLabel}>LAST TIME</Text><Text style={styles.previousValue}>{current === 0 ? '10 reps' : current === 1 ? '8 reps' : '9 reps'}</Text><Text style={styles.previousNote}>steady is the goal</Text></View>
     </ScrollView>
-    <View style={styles.footer}><PrimaryButton label={current === exerciseNames.length - 1 ? 'Finish workout' : 'Save & rest'} onPress={current === exerciseNames.length - 1 ? finish : saveAndContinue} /><Text style={styles.footerNote}>{current === exerciseNames.length - 1 ? 'This saves your final exercise and completes the session.' : 'Your exercise is saved before the timer begins.'}</Text></View><RepEditorModal minimum={0} onClose={() => setIsRepEditorOpen(false)} onSave={setCurrentReps} title="Edit this set" value={reps} visible={isRepEditorOpen} />
+    <View style={styles.footer}><PrimaryButton disabled={isRestSkipLocked} label={current === exerciseNames.length - 1 ? 'Finish workout' : 'Save & rest'} onPress={continueWorkout} /><Text style={styles.footerNote}>{current === exerciseNames.length - 1 ? 'This saves your final exercise and completes the session.' : 'Your exercise is saved before the timer begins.'}</Text></View><RepEditorModal minimum={0} onClose={() => setIsRepEditorOpen(false)} onSave={setCurrentReps} title="Edit this set" value={reps} visible={isRepEditorOpen} />
   </SafeAreaView>;
 }
 
