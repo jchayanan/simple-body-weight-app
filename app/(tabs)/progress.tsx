@@ -97,7 +97,7 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   inspectionTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '800' },
   inspectionBody: { color: colors.muted, fontFamily: fonts.body, fontSize: 14, lineHeight: 21, marginTop: spacing.xs },
   ledger: { borderTopColor: colors.ink, borderTopWidth: 2, marginBottom: spacing.xl },
-  metric: { alignItems: 'baseline', borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 56 },
+  metric: { alignItems: 'center', borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 56 },
   metricLast: { borderBottomWidth: 0 },
   metricLabel: { color: colors.muted, fontFamily: fonts.body, fontSize: 14 },
   metricValue: { color: colors.accent, fontFamily: fonts.body, fontSize: 25, fontWeight: '800', letterSpacing: -0.5 },
