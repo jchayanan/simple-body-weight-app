@@ -175,6 +175,15 @@ export function buildStatisticsView(input: StatisticsInput): StatisticsView {
   };
 }
 
+export function hasStatisticsData(view: StatisticsView) {
+  return view.metrics.sessionCount > 0 || view.maximumSeries.some((point) => point.bestSet > 0);
+}
+
+export function getChartAxisPoints(points: ChartPoint[]) {
+  if (points.length <= 3) return points;
+  return [points[0], points[Math.round((points.length - 1) / 2)], points.at(-1)!];
+}
+
 export function formatBucketLabel(point: ChartPoint) {
   const start = new Date(point.start);
   const end = new Date(point.end);

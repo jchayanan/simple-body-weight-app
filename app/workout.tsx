@@ -143,7 +143,7 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   range: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 14, fontWeight: '700', marginTop: spacing.sm },
   repBlock: { backgroundColor: colors.segmentOff, borderWidth: 1, borderColor: colors.segmentOff, alignItems: 'center', paddingVertical: spacing.xl, marginBottom: spacing.lg },
   repLabel: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.8 },
-  repValue: { color: colors.accent, fontFamily: fonts.display, fontSize: 86, lineHeight: 96 },
+  repValue: { color: colors.accent, fontFamily: fonts.display, fontSize: 86, lineHeight: 96, marginBottom: spacing.lg },
   repHint: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12 },
   previous: { borderBottomWidth: 1, borderTopWidth: 1, borderColor: colors.segmentOff, paddingVertical: spacing.md, flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm, marginBottom: spacing.lg },
   previousLabel: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },

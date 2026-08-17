@@ -1,4 +1,4 @@
-import { buildStatisticsView, type StatisticsInput } from './statisticsMath';
+import { buildStatisticsView, getChartAxisPoints, hasStatisticsData, type StatisticsInput } from './statisticsMath';
 
 const input: StatisticsInput = {
   now: new Date('2026-08-15T12:00:00.000Z'),
@@ -16,6 +16,10 @@ const input: StatisticsInput = {
 };
 
 const pushUpView = buildStatisticsView(input);
+const axisPoints = getChartAxisPoints(pushUpView.regularSeries);
+if (axisPoints.length !== 3 || axisPoints[0] !== pushUpView.regularSeries[0] || axisPoints[1] !== pushUpView.regularSeries[15] || axisPoints[2] !== pushUpView.regularSeries[29]) {
+  throw new Error('Chart axis should render only the first, middle, and last points.');
+}
 const lastRegular = pushUpView.regularSeries.at(-1);
 const secondLastRegular = pushUpView.regularSeries.at(-2);
 const secondLastMaximum = pushUpView.maximumSeries.at(-2);
@@ -33,5 +37,8 @@ if (sixMonthView.regularSeries.length !== 26) throw new Error('Six-month view sh
 
 const emptyView = buildStatisticsView({ ...input, workouts: [], maximumTests: [] });
 if (emptyView.metrics.totalReps !== 0 || emptyView.metrics.consistency !== 0) throw new Error('Empty history should produce zero metrics.');
+if (hasStatisticsData(pushUpView) !== true) throw new Error('Filtered history should be treated as available data.');
+if (hasStatisticsData(buildStatisticsView({ ...input, filter: { type: 'exercise', value: 'Squat' } })) !== false) throw new Error('A filter with no matching records should be treated as empty.');
+if (hasStatisticsData(emptyView) !== false) throw new Error('A completely empty history should be treated as empty.');
 
 console.info('Statistics calculations check passed.');
