@@ -9,4 +9,4 @@ export function Screen({ children, scroll = true }: PropsWithChildren<{ scroll?:
   return <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>{scroll ? <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>{children}</ScrollView> : <View style={styles.content}>{children}</View>}</SafeAreaView>;
 }
 
-const createStyles = (colors: AppColors) => StyleSheet.create({ safeArea: { flex: 1, backgroundColor: colors.background }, content: { flexGrow: 1, paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl } });
+const createStyles = (colors: AppColors) => StyleSheet.create({ safeArea: { flex: 1, backgroundColor: colors.background }, content: { alignSelf: 'center', flexGrow: 1, maxWidth: 760, paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl, width: '100%' } });

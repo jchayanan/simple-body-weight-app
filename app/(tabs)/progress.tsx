@@ -118,7 +118,7 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   trainingMark: { backgroundColor: colors.accent },
   maximumMark: { backgroundColor: colors.success },
   inspectionCopy: { flex: 1 },
-  inspectionTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '800' },
+  inspectionTitle: { color: colors.ink, flexShrink: 1, fontFamily: fonts.body, fontSize: 14, fontWeight: '800' },
   inspectionBody: { color: colors.muted, fontFamily: fonts.body, fontSize: 14, lineHeight: 21, marginTop: spacing.xs },
   ledger: { borderTopColor: colors.ink, borderTopWidth: 2 },
   metric: { alignItems: 'center', borderBottomColor: colors.border, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 56 },

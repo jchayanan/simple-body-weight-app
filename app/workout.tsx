@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '@/src/components/PrimaryButton';
 import { RepEditorModal } from '@/src/components/RepEditorModal';
@@ -29,6 +29,8 @@ function getPreviousReps(movement?: MovementName) {
 export default function WorkoutScreen() {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
+  const { height, width } = useWindowDimensions();
+  const isCompactLandscape = width > height && height < 500;
   const plan = useWorkoutStore((state) => state.plan);
   const current = useWorkoutStore((state) => state.currentExercise);
   const setReps = useWorkoutStore((state) => state.setReps);
@@ -107,16 +109,16 @@ export default function WorkoutScreen() {
   };
 
   if (seconds > 0 && lastSaved) {
-    return <SafeAreaView edges={['top', 'bottom']} style={styles.restScreen}>
-      <View style={styles.restScreenContent}><Text style={styles.restScreenSaved}>{lastSaved.name} saved</Text><Text style={styles.restScreenNext}>Next: {nextLabel}</Text><Text style={styles.restScreenLabel}>REST REMAINING</Text><Text accessibilityLiveRegion="polite" style={styles.restScreenValue}>{formatCountdown(seconds)}</Text><Text style={styles.restScreenUnit}>Keep your form ready</Text></View>
+    return <SafeAreaView edges={['top', 'bottom']} style={[styles.restScreen, isCompactLandscape && styles.restScreenCompact]}>
+      <View style={styles.restScreenContent}><Text style={styles.restScreenSaved}>{lastSaved.name} saved</Text><Text style={styles.restScreenNext}>Next: {nextLabel}</Text><Text style={[styles.restScreenLabel, isCompactLandscape && styles.restScreenLabelCompact]}>REST REMAINING</Text><Text accessibilityLiveRegion="polite" style={[styles.restScreenValue, isCompactLandscape && styles.restScreenValueCompact]}>{formatCountdown(seconds)}</Text><Text style={styles.restScreenUnit}>Keep your form ready</Text></View>
       <Pressable accessibilityRole="button" accessibilityLabel="Skip rest" accessibilityState={{ disabled: isWorkoutActionLocked }} disabled={isWorkoutActionLocked} onPress={skipRest} style={({ pressed }) => [styles.skipRest, (pressed || isWorkoutActionLocked) && styles.pressed]}><Text style={styles.skipRestText}>Skip rest</Text></Pressable>
     </SafeAreaView>;
   }
 
   return <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
-    <View style={styles.top}><Pressable accessibilityLabel="Close workout" accessibilityRole="button" onPress={() => router.back()} style={styles.close}><Ionicons name="close" size={23} color={colors.white} /></Pressable><Text style={styles.topTitle}>{plan.name.toUpperCase()}</Text><Text style={styles.progressLabel}>{isMaxProgram ? 'Set' : 'Exercise'} {current + 1} of {exerciseNames.length}</Text></View>
-    <View style={styles.progressTrack}>{exerciseNames.map((_, index) => <View key={index} style={[styles.segment, index <= current && styles.segmentLit]} />)}</View>
-    <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <View style={[styles.top, isCompactLandscape && styles.topCompact]}><Pressable accessibilityLabel="Close workout" accessibilityRole="button" onPress={() => router.back()} style={styles.close}><Ionicons name="close" size={23} color={colors.white} /></Pressable><Text style={styles.topTitle}>{plan.name.toUpperCase()}</Text><Text style={styles.progressLabel}>{isMaxProgram ? 'Set' : 'Exercise'} {current + 1} of {exerciseNames.length}</Text></View>
+    <View style={[styles.progressTrack, isCompactLandscape && styles.progressTrackCompact]}>{exerciseNames.map((_, index) => <View key={index} style={[styles.segment, index <= current && styles.segmentLit]} />)}</View>
+    <ScrollView contentContainerStyle={[styles.content, isCompactLandscape && styles.contentCompact]} showsVerticalScrollIndicator={false}>
       <View style={styles.exerciseHeader}><Text style={styles.exerciseTitle}>{isMaxProgram ? plan.movement : currentLabel}</Text><Text style={styles.range}>Target {plan.targetReps[current]} reps</Text></View>
       <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${isMaxProgram ? `set ${current + 1}` : currentLabel} reps, currently ${reps}`} accessibilityHint="Opens a number input" onPress={() => { setEditingSavedIndex(null); setIsRepEditorOpen(true); }} style={({ pressed }) => [styles.repBlock, pressed && styles.pressed]}><Text style={styles.repLabel}>{isMaxProgram ? `SET ${current + 1}` : 'THIS EXERCISE'}</Text><Text accessibilityLiveRegion="polite" style={styles.repValue}>{reps}</Text><Text style={styles.repHint}>tap anywhere to edit</Text></Pressable>
       <View style={styles.previous}><Text style={styles.previousLabel}>LAST TIME</Text><Text style={styles.previousValue}>{previousValue}</Text><Text style={styles.previousNote}>{previousReps === null ? 'No saved history yet' : 'latest logged entry'}</Text></View>
@@ -148,17 +150,23 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   previous: { borderBottomWidth: 1, borderTopWidth: 1, borderColor: colors.segmentOff, paddingVertical: spacing.sm, flexDirection: 'row', alignItems: 'baseline', gap: spacing.sm, marginBottom: spacing.md },
   previousLabel: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },
   previousValue: { color: colors.white, fontFamily: fonts.body, fontSize: 14, fontWeight: '700' },
-  previousNote: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12 },
+  previousNote: { color: colors.instrumentMuted, flexShrink: 1, fontFamily: fonts.body, fontSize: 12 },
   restScreen: { backgroundColor: colors.instrument, flex: 1, justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.xl },
+  restScreenCompact: { paddingVertical: spacing.sm },
   restScreenContent: { alignItems: 'center', flex: 1, justifyContent: 'center' },
   restScreenSaved: { color: colors.success, fontFamily: fonts.body, fontSize: 14, fontWeight: '700' },
   restScreenNext: { color: colors.white, fontFamily: fonts.body, fontSize: 16, fontWeight: '700', marginTop: spacing.sm },
   restScreenLabel: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 1, marginTop: spacing.xxl },
+  restScreenLabelCompact: { marginTop: spacing.md },
   restScreenValue: { color: colors.accent, fontFamily: fonts.display, fontSize: 136, lineHeight: 146, marginTop: spacing.md },
+  restScreenValueCompact: { fontSize: 96, lineHeight: 104, marginTop: spacing.sm },
   restScreenUnit: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 15, marginTop: spacing.xs },
   skipRest: { alignItems: 'center', borderColor: colors.segmentOff, borderWidth: 1, justifyContent: 'center', minHeight: 52 },
   skipRestText: { color: colors.white, fontFamily: fonts.body, fontSize: 15, fontWeight: '700' },
   footer: { borderTopWidth: 1, borderTopColor: colors.segmentOff, paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.xs, backgroundColor: colors.instrument },
+  topCompact: { marginBottom: spacing.xs, paddingTop: 0 },
+  progressTrackCompact: { marginBottom: spacing.sm },
+  contentCompact: { paddingBottom: spacing.md },
   footerNote: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12, lineHeight: 16, textAlign: 'center', marginTop: spacing.xs },
   pressed: { opacity: 0.64 },
 });
