@@ -1,16 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { PushUpIcon } from '@/src/components/PushUpIcon';
 import { PullUpIcon } from '@/src/components/PullUpIcon';
 import { Screen } from '@/src/components/Screen';
+import { getStatisticsHistory } from '@/src/lib/localDb';
+import { buildWorkoutActivity } from '@/src/lib/workoutActivity';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 export default function TodayScreen() {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
+  const [activity, setActivity] = useState(() => buildWorkoutActivity([]));
+  const refreshActivity = useCallback(() => {
+    try {
+      setActivity(buildWorkoutActivity(getStatisticsHistory().workouts));
+    } catch {
+      setActivity(buildWorkoutActivity([]));
+    }
+  }, []);
+  useFocusEffect(useCallback(() => { refreshActivity(); }, [refreshActivity]));
+  const sessionLabel = activity.sessionCount === 1 ? 'session' : 'sessions';
+
   return <Screen>
-    <View style={styles.header}><Text style={styles.date}>WEDNESDAY, 14 AUGUST</Text><Text style={styles.title}>Train today.</Text><Text style={styles.weekStatus}>2 sessions this week</Text></View>
+    <View style={styles.header}><Text style={styles.title}>Train today.</Text><Text style={styles.weekStatus}>{activity.sessionCount} {sessionLabel} in the last 7 days</Text></View>
+    <View style={styles.activityStrip}><View style={styles.activityDays}>{activity.days.map((day) => <View key={day.key} accessible accessibilityLabel={day.accessibilityLabel} style={[styles.activityDay, day.isToday && styles.activityDayToday]}><Text style={[styles.activityWeekday, day.isToday && styles.activityWeekdayToday]}>{day.weekday}</Text><Text style={styles.activityDate}>{day.date}</Text><View style={[styles.activityMark, day.completed ? styles.activityMarkComplete : styles.activityMarkEmpty]} /></View>)}</View></View>
     <View style={styles.programHero}><Text style={styles.programHeroTitle}>Choose your focus.</Text>{[
       { movement: 'Push-up', note: 'Five sets from your tested maximum', icon: 'arrow-up-outline' },
       { movement: 'Pull-up', note: 'Five sets from your tested maximum', icon: 'arrow-down-outline' },
@@ -19,4 +34,4 @@ export default function TodayScreen() {
   </Screen>;
 }
 
-const createStyles = (colors: AppColors) => StyleSheet.create({ header: { paddingTop: spacing.md, marginBottom: spacing.xl }, date: { color: colors.accent, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.9 }, title: { color: colors.ink, fontFamily: fonts.body, fontSize: 36, fontWeight: '800', letterSpacing: -1.1, marginTop: spacing.xs }, weekStatus: { color: colors.success, fontFamily: fonts.body, fontSize: 13, fontWeight: '700', marginTop: spacing.sm }, programHero: { borderTopColor: colors.ink, borderTopWidth: 2, paddingTop: spacing.lg }, programHeroTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 25, fontWeight: '800', letterSpacing: -0.4, marginBottom: spacing.sm }, programHeroRow: { alignItems: 'center', borderTopColor: colors.border, borderTopWidth: 1, flexDirection: 'row', minHeight: 104 }, programHeroIcon: { alignItems: 'center', backgroundColor: colors.instrument, height: 48, justifyContent: 'center', width: 48 }, programHeroCopy: { flex: 1, marginLeft: spacing.md }, programHeroName: { color: colors.ink, fontFamily: fonts.body, fontSize: 22, fontWeight: '800', letterSpacing: -0.3 }, programHeroNote: { color: colors.muted, fontFamily: fonts.body, fontSize: 13, lineHeight: 18, marginTop: 5, maxWidth: 190 }, pressed: { opacity: 0.65 } });
+const createStyles = (colors: AppColors) => StyleSheet.create({ header: { paddingTop: spacing.md, marginBottom: spacing.md }, title: { color: colors.ink, fontFamily: fonts.body, fontSize: 36, fontWeight: '800', letterSpacing: -1.1 }, weekStatus: { color: colors.success, fontFamily: fonts.body, fontSize: 13, fontWeight: '700', marginTop: spacing.sm }, activityStrip: { paddingBottom: spacing.sm }, activityDays: { flexDirection: 'row', gap: spacing.xs }, activityDay: { alignItems: 'center', borderColor: colors.background, borderWidth: 1, flex: 1, justifyContent: 'center', minHeight: 72, minWidth: 0, paddingVertical: spacing.xs }, activityDayToday: { borderColor: colors.accent }, activityWeekday: { color: colors.muted, fontFamily: fonts.body, fontSize: 11, fontWeight: '800', letterSpacing: 0.5 }, activityWeekdayToday: { color: colors.accent }, activityDate: { color: colors.ink, fontFamily: fonts.body, fontSize: 20, fontWeight: '800', marginTop: 2 }, activityMark: { height: 6, marginTop: spacing.xs, width: 6 }, activityMarkComplete: { backgroundColor: colors.success }, activityMarkEmpty: { borderColor: colors.border, borderWidth: 1 }, programHero: { borderTopColor: colors.ink, borderTopWidth: 2, paddingTop: spacing.md }, programHeroTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 25, fontWeight: '800', letterSpacing: -0.4, marginBottom: spacing.sm }, programHeroRow: { alignItems: 'center', borderTopColor: colors.border, borderTopWidth: 1, flexDirection: 'row', minHeight: 104 }, programHeroIcon: { alignItems: 'center', backgroundColor: colors.instrument, height: 48, justifyContent: 'center', width: 48 }, programHeroCopy: { flex: 1, marginLeft: spacing.md }, programHeroName: { color: colors.ink, fontFamily: fonts.body, fontSize: 22, fontWeight: '800', letterSpacing: -0.3 }, programHeroNote: { color: colors.muted, fontFamily: fonts.body, fontSize: 13, lineHeight: 18, marginTop: 5, maxWidth: 190 }, pressed: { opacity: 0.65 } });
