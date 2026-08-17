@@ -37,6 +37,7 @@ type WorkoutState = {
   lastWorkoutDurationMinutes: number | null;
   workoutStartedAt: number | null;
   setCurrentReps: (reps: number) => void;
+  updateSavedExercise: (index: number, reps: number) => void;
   startRoutine: () => void;
   startMaxProgram: (movement: MaxProgramMovement, maximumReps: number) => void;
   saveCurrentExercise: () => void;
@@ -57,8 +58,16 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
   workoutStartedAt: null,
   setCurrentReps: (reps) => set((state) => {
     const setReps = [...state.setReps];
-    setReps[state.currentExercise] = Math.max(0, Math.round(reps));
+    setReps[state.currentExercise] = Math.max(1, Math.round(reps));
     return { setReps, hasDraft: true };
+  }),
+  updateSavedExercise: (index, reps) => set((state) => {
+    const value = Math.max(1, Math.round(reps));
+    const setReps = [...state.setReps];
+    const savedExercises = [...state.savedExercises];
+    setReps[index] = value;
+    savedExercises[index] = value;
+    return { setReps, savedExercises, hasDraft: true };
   }),
   startRoutine: () => set({
     plan: defaultPlan,
