@@ -24,9 +24,9 @@ export default function TodayScreen() {
   const sessionLabel = activity.sessionCount === 1 ? 'session' : 'sessions';
 
   return <Screen>
-    <View style={styles.header}><Text style={styles.title}>Train today.</Text><Text style={styles.weekStatus}>{activity.sessionCount} {sessionLabel} in the last 7 days</Text></View>
+    <View style={styles.header}><Text style={styles.title}>Training</Text><Text style={styles.weekStatus}>{activity.sessionCount} {sessionLabel} in the last 7 days</Text></View>
     <View style={styles.activityStrip}><View style={styles.activityDays}>{activity.days.map((day) => <View key={day.key} accessible accessibilityLabel={day.accessibilityLabel} style={[styles.activityDay, day.isToday && styles.activityDayToday]}><Text style={[styles.activityWeekday, day.isToday && styles.activityWeekdayToday]}>{day.weekday}</Text><Text style={styles.activityDate}>{day.date}</Text><View style={[styles.activityMark, day.completed ? styles.activityMarkComplete : styles.activityMarkEmpty]} /></View>)}</View></View>
-    <View style={styles.programHero}><Text style={styles.programHeroTitle}>Choose your focus.</Text>{[
+    <View style={styles.programHero}><Text style={styles.programHeroTitle}>Choose your focus</Text>{[
       { movement: 'Push-up', note: 'Five sets from your tested maximum', icon: 'arrow-up-outline' },
       { movement: 'Pull-up', note: 'Five sets from your tested maximum', icon: 'arrow-down-outline' },
       { movement: 'Squat', note: 'Five sets from your tested maximum', icon: 'barbell-outline' },

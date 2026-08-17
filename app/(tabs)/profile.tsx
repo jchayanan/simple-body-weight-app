@@ -8,14 +8,14 @@ export default function SettingsScreen() {
   const { colors, mode, setMode } = useAppTheme();
   const styles = createStyles(colors);
   return <Screen>
-    <View style={styles.header}><Text style={styles.title}>Settings</Text><Text style={styles.subtitle}>Keep the next session easy to return to.</Text></View>
+    <View style={styles.header}><Text style={styles.title}>Settings</Text><Text style={styles.subtitle}>Keep the next session easy to return to</Text></View>
     <Text style={styles.section}>Preferences</Text>
     <View style={styles.list}>
       <Pressable accessibilityRole="button" accessibilityLabel="Open training reminders" accessibilityHint="Choose the days and time for your workout reminder" onPress={() => router.push('/reminder')} style={({ pressed }) => [styles.row, pressed && styles.pressed]}><View style={styles.icon}><Ionicons name="notifications-outline" size={20} color={colors.accent} /></View><View style={styles.copy}><Text style={styles.label}>Training reminders</Text><Text style={styles.note}>Choose days and time</Text></View><Ionicons name="chevron-forward" size={18} color={colors.muted} /></Pressable>
       <View style={styles.row}><View style={styles.icon}><Ionicons name="moon-outline" size={20} color={colors.accent} /></View><View style={styles.copy}><Text style={styles.label}>Dark appearance</Text><Text style={styles.note}>{mode === 'dark' ? 'On' : 'Off'}</Text></View><Switch accessibilityLabel="Use dark appearance" onValueChange={(enabled) => setMode(enabled ? 'dark' : 'light')} trackColor={{ false: colors.border, true: colors.accent }} value={mode === 'dark'} /></View>
     </View>
     <Text style={styles.section}>About</Text>
-    <View style={styles.about}><Text style={styles.aboutTitle}>Repbook</Text><Text style={styles.aboutBody}>Your training record stays on this device and works without a connection.</Text></View>
+    <View style={styles.about}><Text style={styles.aboutTitle}>Repbook</Text><Text style={styles.aboutBody}>Your training record stays on this device and works without a connection</Text></View>
   </Screen>;
 }
 

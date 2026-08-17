@@ -20,7 +20,7 @@ export default function CompleteScreen() {
   const planType = useWorkoutStore((state) => state.plan.type);
   const resetWorkout = useWorkoutStore((state) => state.resetWorkout);
   const sessionUnit = planType === 'max-program' ? 'sets' : 'exercises';
-  const sessionTitle = lastWorkoutName ? `${lastWorkoutName} complete.` : 'Session complete.';
+  const sessionTitle = lastWorkoutName ? `${lastWorkoutName} complete` : 'Session complete';
   const sessionUnitLabel = sessionUnit === 'sets' ? 'sets completed' : 'exercises completed';
   const summaryAccessibilityLabel = `${total} reps logged, ${lastWorkoutSetCount} ${sessionUnitLabel}${lastWorkoutDurationMinutes ? `, ${lastWorkoutDurationMinutes} minutes` : ''}`;
 
@@ -38,7 +38,7 @@ export default function CompleteScreen() {
 
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
-    AccessibilityInfo.announceForAccessibility(`${sessionTitle} ${summaryAccessibilityLabel}.`);
+    AccessibilityInfo.announceForAccessibility(`${sessionTitle} ${summaryAccessibilityLabel}`);
   }, [sessionTitle, summaryAccessibilityLabel]);
 
   useEffect(() => {
@@ -61,14 +61,14 @@ export default function CompleteScreen() {
   const summaryMotionStyle = reduceMotion === false ? { opacity: summaryReveal.interpolate({ inputRange: [0, 1], outputRange: [1, 0.92] }), transform: [{ translateY: summaryReveal.interpolate({ inputRange: [0, 1], outputRange: [0, 4] }) }] } : undefined;
 
   return <Screen>
-    <View accessibilityLiveRegion="polite" style={styles.header}><Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.check, checkMotionStyle]}><Ionicons name="checkmark" size={31} color={colors.white} /></Animated.View><Text style={styles.title}>{sessionTitle}</Text><Text style={styles.subtitle}>A clear record of this session.</Text></View>
+    <View accessibilityLiveRegion="polite" style={styles.header}><Animated.View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.check, checkMotionStyle]}><Ionicons name="checkmark" size={31} color={colors.white} /></Animated.View><Text style={styles.title}>{sessionTitle}</Text><Text style={styles.subtitle}>A clear record of this session</Text></View>
     <Animated.View accessible accessibilityLabel={summaryAccessibilityLabel} style={[styles.summary, summaryMotionStyle]}>
       <View style={styles.stat}><Text style={styles.value}>{total}</Text><Text style={styles.label}>reps logged</Text></View>
       <View style={[styles.stat, !lastWorkoutDurationMinutes && styles.lastStat]}><Text style={styles.value}>{lastWorkoutSetCount}</Text><Text style={styles.label}>{sessionUnitLabel}</Text></View>
       {lastWorkoutDurationMinutes ? <View style={[styles.stat, styles.lastStat]}><Text style={styles.value}>{lastWorkoutDurationMinutes}</Text><Text style={styles.label}>minutes</Text></View> : null}
     </Animated.View>
-    <View style={styles.record}><View style={styles.recordMark} /><View style={styles.recordCopy}><Text style={styles.recordTitle}>Saved on this device</Text><Text style={styles.recordBody}>Filed in your training log. No connection needed.</Text></View></View>
-    <View style={styles.bottom}><PrimaryButton label="Back to today" onPress={() => { resetWorkout(); router.replace('/'); }} /><Pressable accessibilityRole="button" accessibilityLabel="View progress" onPress={() => { resetWorkout(); router.replace('/progress'); }} style={({ pressed }) => [styles.secondaryAction, pressed && styles.pressed]}><Text style={styles.secondaryLabel}>View progress</Text></Pressable><Text style={styles.footer}>Your next session starts when you are ready.</Text></View>
+    <View style={styles.record}><View style={styles.recordMark} /><View style={styles.recordCopy}><Text style={styles.recordTitle}>Saved on this device</Text><Text style={styles.recordBody}>Filed in your training log. No connection needed</Text></View></View>
+    <View style={styles.bottom}><PrimaryButton label="Back to today" onPress={() => { resetWorkout(); router.replace('/'); }} /><Pressable accessibilityRole="button" accessibilityLabel="View progress" onPress={() => { resetWorkout(); router.replace('/progress'); }} style={({ pressed }) => [styles.secondaryAction, pressed && styles.pressed]}><Text style={styles.secondaryLabel}>View progress</Text></Pressable><Text style={styles.footer}>Your next session starts when you are ready</Text></View>
   </Screen>;
 }
 

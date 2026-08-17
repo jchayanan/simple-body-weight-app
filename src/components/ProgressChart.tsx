@@ -33,7 +33,7 @@ export function ProgressChart({ regularSeries, maximumSeries, activeSeries, sele
   const selectedPoint = selected?.series === activeSeries ? activePoints.find((point) => point.bucketId === selected.bucketId) : undefined;
   const selectedIndex = selectedPoint ? activePoints.indexOf(selectedPoint) : currentPoint ? activePoints.indexOf(currentPoint) : 0;
   const chartUnit = activeSeries === 'regular' ? 'Total training reps in each period' : 'Best tested set in each period';
-  const chartHint = activeSeries === 'regular' ? 'Select a period to hear total reps and sessions.' : 'Select a period to hear the best tested set.';
+  const chartHint = activeSeries === 'regular' ? 'Select a period to hear total reps and sessions' : 'Select a period to hear the best tested set';
   const points = activePoints.map((point, index) => ({
     point,
     x: width ? 8 + ((width - 16) * index) / Math.max(activePoints.length - 1, 1) : 0,
@@ -60,7 +60,7 @@ export function ProgressChart({ regularSeries, maximumSeries, activeSeries, sele
     <Text style={styles.chartUnit}>{chartUnit}</Text>
     <View style={styles.plotRow}>
       <View accessible={false} style={styles.scale}><Text numberOfLines={1} style={styles.scaleLabel}>{maximum.toLocaleString()}</Text><Text numberOfLines={1} style={styles.scaleLabel}>{midpoint.toLocaleString()}</Text><Text numberOfLines={1} style={styles.scaleLabel}>0</Text></View>
-      <View accessibilityHint={chartHint + ' Screen readers can use next or previous period actions.'} accessibilityLabel={(activeSeries === 'regular' ? 'Training volume' : 'Maximum test') + ' chart'} accessibilityRole="adjustable" accessibilityValue={{ text: selectedPoint ? `${selectedPoint.label}, ${pointValue(selectedPoint, activeSeries)} reps` : currentPoint ? `${currentPoint.label}, ${pointValue(currentPoint, activeSeries)} reps, latest period` : 'No periods' }} accessibilityActions={[{ name: 'increment', label: 'Next period' }, { name: 'decrement', label: 'Previous period' }]} onAccessibilityAction={(event) => moveSelection(event.nativeEvent.actionName === 'increment' ? 1 : -1)} onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)} onStartShouldSetResponder={() => true} onResponderRelease={(event) => selectNearest(event.nativeEvent.locationX)} style={styles.plot}>
+      <View accessibilityHint={chartHint + ' Screen readers can use next or previous period actions'} accessibilityLabel={(activeSeries === 'regular' ? 'Training volume' : 'Maximum test') + ' chart'} accessibilityRole="adjustable" accessibilityValue={{ text: selectedPoint ? `${selectedPoint.label}, ${pointValue(selectedPoint, activeSeries)} reps` : currentPoint ? `${currentPoint.label}, ${pointValue(currentPoint, activeSeries)} reps, latest period` : 'No periods' }} accessibilityActions={[{ name: 'increment', label: 'Next period' }, { name: 'decrement', label: 'Previous period' }]} onAccessibilityAction={(event) => moveSelection(event.nativeEvent.actionName === 'increment' ? 1 : -1)} onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)} onStartShouldSetResponder={() => true} onResponderRelease={(event) => selectNearest(event.nativeEvent.locationX)} style={styles.plot}>
         <View style={styles.baseline} />
         {points.slice(1).map((current, index) => {
           const previous = points[index];

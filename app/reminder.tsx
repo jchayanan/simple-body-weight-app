@@ -17,21 +17,21 @@ export default function ReminderScreen() {
   const [days, setDays] = useState(() => getStoredReminder().days);
   const [hour, setHour] = useState(() => getStoredReminder().hour);
   const [minute, setMinute] = useState(() => getStoredReminder().minute);
-  const [status, setStatus] = useState('Choose when Repbook should nudge you to train.');
+  const [status, setStatus] = useState('Choose when Repbook should nudge you to train');
   const [saving, setSaving] = useState(false);
   const toggleDay = (day: number) => setDays((current) => current.includes(day) ? current.filter((value) => value !== day) : [...current, day]);
   const save = async () => {
-    if (!days.length) { setStatus('Choose at least one day.'); return; }
+    if (!days.length) { setStatus('Choose at least one day'); return; }
     setSaving(true);
     try {
       const result = await scheduleTrainingReminders({ days, hour, minute });
       if (result.scheduled) { storeReminder({ days, hour, minute }); router.back(); return; }
       setStatus(result.reason);
-    } catch { setStatus('Could not save reminders. Try again.'); } finally { setSaving(false); }
+    } catch { setStatus('Could not save reminders. Try again'); } finally { setSaving(false); }
   };
   return <Screen>
     <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel="Back to settings" onPress={() => router.back()} style={styles.back}><Ionicons name="arrow-back" size={22} color={colors.ink} /></Pressable></View>
-    <View style={styles.header}><Text style={styles.title}>Training reminders</Text><Text style={styles.subtitle}>A quiet nudge for the days you intend to train.</Text></View>
+    <View style={styles.header}><Text style={styles.title}>Training reminders</Text><Text style={styles.subtitle}>A quiet nudge for the days you intend to train</Text></View>
     <View style={styles.block}><Text style={styles.label}>Repeat on</Text><View style={styles.dayRow}>{weekdays.map((day) => <Pressable key={`${day.label}-${day.value}`} accessibilityRole="button" accessibilityState={{ selected: days.includes(day.value) }} onPress={() => toggleDay(day.value)} style={[styles.day, days.includes(day.value) && styles.dayActive]}><Text style={[styles.dayText, days.includes(day.value) && styles.dayTextActive]}>{day.label}</Text></Pressable>)}</View>
       <Text style={styles.label}>Time</Text><View style={styles.timeRow}><TextInput accessibilityLabel="Reminder hour" keyboardType="number-pad" maxLength={2} onChangeText={(value) => setHour(Math.min(23, Math.max(0, Number(value) || 0)))} style={styles.timeInput} value={String(hour).padStart(2, '0')} /><Text style={styles.timeSeparator}>:</Text><TextInput accessibilityLabel="Reminder minute" keyboardType="number-pad" maxLength={2} onChangeText={(value) => setMinute(Math.min(59, Math.max(0, Number(value) || 0)))} style={styles.timeInput} value={String(minute).padStart(2, '0')} /></View>
       <Pressable accessibilityRole="button" disabled={saving} onPress={save} style={({ pressed }) => [styles.save, (pressed || saving) && styles.pressed]}><Text style={styles.saveText}>{saving ? 'Saving…' : 'Save reminders'}</Text></Pressable><Text accessibilityLiveRegion="polite" style={styles.status}>{status}</Text>

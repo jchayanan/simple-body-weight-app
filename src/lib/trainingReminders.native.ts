@@ -15,11 +15,11 @@ async function ensurePermission() {
 }
 
 export async function scheduleTrainingReminders({ days, hour, minute }: ReminderSchedule) {
-  if (!(await ensurePermission())) return { scheduled: false, reason: 'Notifications are disabled in system settings.' };
+  if (!(await ensurePermission())) return { scheduled: false, reason: 'Notifications are disabled in system settings' };
   const requests = await Notifications.getAllScheduledNotificationsAsync();
   await Promise.all(requests.filter((request) => request.content.data?.type === 'training-reminder').map((request) => Notifications.cancelScheduledNotificationAsync(request.identifier)));
   await Promise.all(days.map((weekday) => Notifications.scheduleNotificationAsync({
-    content: { title: 'Ready to train?', body: 'Open Repbook and record your next set.', data: { type: 'training-reminder' }, sound: 'default' },
+    content: { title: 'Ready to train?', body: 'Open Repbook and record your next set', data: { type: 'training-reminder' }, sound: 'default' },
     trigger: Platform.OS === 'ios'
       ? { type: Notifications.SchedulableTriggerInputTypes.CALENDAR, weekday, hour, minute, repeats: true }
       : { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday, hour, minute, channelId: 'training-reminders' },
