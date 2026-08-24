@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Screen } from '@/src/components/Screen';
 import { getStoredReminder, storeReminder } from '@/src/lib/reminderPreferences';
-import { reminderActionLabel, toggleReminderDay, weekdays } from '@/src/lib/reminderModel';
+import { normalizeReminderTimeDraft, reminderActionLabel, sanitizeReminderTimeDraft, toggleReminderDay, weekdays } from '@/src/lib/reminderModel';
 import { cancelTrainingReminders, scheduleTrainingReminders } from '@/src/lib/trainingReminders';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
@@ -12,13 +12,15 @@ export default function ReminderScreen() {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
   const [days, setDays] = useState(() => getStoredReminder().days);
-  const [hour, setHour] = useState(() => getStoredReminder().hour);
-  const [minute, setMinute] = useState(() => getStoredReminder().minute);
+  const [hourDraft, setHourDraft] = useState(() => String(getStoredReminder().hour).padStart(2, '0'));
+  const [minuteDraft, setMinuteDraft] = useState(() => String(getStoredReminder().minute).padStart(2, '0'));
   const [status, setStatus] = useState('Choose when Simple Bodyweight should nudge you to train');
   const [saving, setSaving] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const toggleDay = (day: number) => { setDays((current) => toggleReminderDay(current, day)); setPermissionDenied(false); };
   const save = async () => {
+    const hour = Number(normalizeReminderTimeDraft(hourDraft, 23));
+    const minute = Number(normalizeReminderTimeDraft(minuteDraft, 59));
     setSaving(true);
     try {
       if (!days.length) {
@@ -37,7 +39,7 @@ export default function ReminderScreen() {
     <View style={styles.top}><Pressable accessibilityRole="button" accessibilityLabel="Back to settings" onPress={() => router.back()} style={styles.back}><Ionicons name="arrow-back" size={22} color={colors.ink} /></Pressable></View>
     <View style={styles.header}><Text style={styles.title}>Training reminders</Text><Text style={styles.subtitle}>A quiet nudge for the days you intend to train</Text></View>
     <View style={styles.block}><Text style={styles.label}>Repeat on</Text><View style={styles.dayRow}>{weekdays.map((day) => <Pressable key={`${day.label}-${day.value}`} accessibilityLabel={day.accessibilityLabel} accessibilityRole="button" accessibilityState={{ selected: days.includes(day.value) }} onPress={() => toggleDay(day.value)} style={[styles.day, days.includes(day.value) && styles.dayActive]}><Text style={[styles.dayText, days.includes(day.value) && styles.dayTextActive]}>{day.label}</Text></Pressable>)}</View>
-      <Text style={styles.label}>Time</Text><View style={styles.timeRow}><TextInput accessibilityLabel="Reminder hour" keyboardType="number-pad" maxLength={2} onChangeText={(value) => setHour(Math.min(23, Math.max(0, Number(value) || 0)))} style={styles.timeInput} value={String(hour).padStart(2, '0')} /><Text style={styles.timeSeparator}>:</Text><TextInput accessibilityLabel="Reminder minute" keyboardType="number-pad" maxLength={2} onChangeText={(value) => setMinute(Math.min(59, Math.max(0, Number(value) || 0)))} style={styles.timeInput} value={String(minute).padStart(2, '0')} /></View>
+      <Text style={styles.label}>Time</Text><View style={styles.timeRow}><TextInput accessibilityLabel="Reminder hour" keyboardType="number-pad" maxLength={2} onBlur={() => setHourDraft(normalizeReminderTimeDraft(hourDraft, 23))} onChangeText={(value) => setHourDraft(sanitizeReminderTimeDraft(value, 23))} selectTextOnFocus style={styles.timeInput} value={hourDraft} /><Text style={styles.timeSeparator}>:</Text><TextInput accessibilityLabel="Reminder minute" keyboardType="number-pad" maxLength={2} onBlur={() => setMinuteDraft(normalizeReminderTimeDraft(minuteDraft, 59))} onChangeText={(value) => setMinuteDraft(sanitizeReminderTimeDraft(value, 59))} selectTextOnFocus style={styles.timeInput} value={minuteDraft} /></View>
       <Pressable accessibilityRole="button" disabled={saving} onPress={save} style={({ pressed }) => [styles.save, (pressed || saving) && styles.pressed]}><Text style={styles.saveText}>{saving ? 'Updating…' : reminderActionLabel(days)}</Text></Pressable><Text accessibilityLiveRegion="polite" style={styles.status}>{status}</Text>{permissionDenied ? <Pressable accessibilityRole="button" onPress={() => Linking.openSettings()} style={styles.settingsAction}><Text style={styles.settingsActionText}>Open system settings</Text></Pressable> : null}
     </View>
   </Screen>;

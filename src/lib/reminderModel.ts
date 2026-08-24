@@ -15,3 +15,13 @@ export function toggleReminderDay(days: number[], day: number) {
 export function reminderActionLabel(days: number[]) {
   return days.length ? 'Save reminders' : 'Turn off reminders';
 }
+
+export function sanitizeReminderTimeDraft(value: string, maximum: number) {
+  const digits = value.replace(/[^0-9]/g, '').slice(0, 2);
+  if (!digits) return '';
+  return String(Math.min(maximum, Number(digits)));
+}
+
+export function normalizeReminderTimeDraft(value: string, maximum: number) {
+  return sanitizeReminderTimeDraft(value, maximum).padStart(2, '0');
+}
