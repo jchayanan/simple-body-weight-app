@@ -4,6 +4,15 @@
 node_modules/
 .worktrees/
 
+# Agent tooling and local design context
+.claude/
+.impeccable/
+.superpowers/
+/docs/superpowers/
+/AGENTS.md
+/CLAUDE.md
+/PRODUCT.md
+
 # Expo
 .expo/
 dist/
