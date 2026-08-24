@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+.pnpm-store/
 .worktrees/
 
 # Agent tooling and local design context
@@ -19,6 +20,7 @@ node_modules/
 dist/
 web-build/
 expo-env.d.ts
+/artifacts/
 
 # Native
 .kotlin/
