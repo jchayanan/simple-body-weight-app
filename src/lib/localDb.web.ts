@@ -67,10 +67,10 @@ export function getMovementProgramStatus(movement: MovementName) {
   return movementProgramStatus(readHistory(), movement);
 }
 
-export function getStatisticsHistory(): { workouts: StoredWorkout[]; maximumTests: MaximumTestEntry[] } {
+export function getStatisticsHistory(since?: string): { workouts: StoredWorkout[]; maximumTests: MaximumTestEntry[] } {
   return {
-    workouts: readWorkouts(),
-    maximumTests: readHistory().filter((entry) => entry.kind === 'maximum').map((entry) => ({ id: entry.id, movement: entry.movement, reps: entry.reps, recordedAt: entry.recordedAt })),
+    workouts: readWorkouts().filter((workout) => !since || workout.completedAt >= since),
+    maximumTests: readHistory().filter((entry) => entry.kind === 'maximum' && (!since || entry.recordedAt >= since)).map((entry) => ({ id: entry.id, movement: entry.movement, reps: entry.reps, recordedAt: entry.recordedAt })),
   };
 }
 

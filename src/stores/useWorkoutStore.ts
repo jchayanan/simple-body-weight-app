@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getMovementProgramStatus, saveCompletedWorkout } from '@/src/lib/localDb';
 import { buildMaxProgramTargets, type MovementName } from '@/src/lib/progressMath';
+import { attemptWorkoutSave, type WorkoutSaveResult } from '@/src/lib/workoutSave';
 import { toTrackedWorkoutEntries } from '@/src/lib/workoutEntries';
 
 export { buildMaxProgramTargets } from '@/src/lib/progressMath';
@@ -41,7 +42,7 @@ type WorkoutState = {
   startRoutine: () => void;
   startMaxProgram: (movement: MaxProgramMovement, maximumReps: number) => void;
   saveCurrentExercise: () => void;
-  finishWorkout: () => void;
+  finishWorkout: () => WorkoutSaveResult;
   resetWorkout: () => void;
 };
 
@@ -118,13 +119,12 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
     const totalReps = workout.setReps.reduce((total, reps) => total + reps, 0);
     const savedExercises = [...workout.savedExercises];
     savedExercises[workout.currentExercise] = workout.setReps[workout.currentExercise];
-    try {
+    const result = attemptWorkoutSave(() => {
       const movementReps = workout.plan.type === 'max-program' ? totalReps : workout.plan.trackedMovement ? workout.setReps[0] : undefined;
       const entries = toTrackedWorkoutEntries(workout.plan.labels, workout.setReps, workout.plan.type === 'max-program' ? workout.plan.trackedMovement : undefined);
       saveCompletedWorkout({ routine: workout.plan.name, totalReps, entries, movement: workout.plan.trackedMovement, movementReps, maximumProgram: workout.plan.type === 'max-program' });
-    } catch {
-      // Offline state remains usable if SQLite is unavailable.
-    }
+    });
+    if (!result.saved) return result;
     set({
       lastWorkoutTotal: totalReps,
       lastWorkoutName: workout.plan.name,
@@ -133,6 +133,7 @@ export const useWorkoutStore = create<WorkoutState>((set, get) => ({
       savedExercises,
       hasDraft: true,
     });
+    return result;
   },
   resetWorkout: () => set({
     plan: defaultPlan,

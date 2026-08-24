@@ -1,10 +1,11 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { ProgressChart, type ChartSeries } from '@/src/components/ProgressChart';
 import { Screen } from '@/src/components/Screen';
 import { getStatisticsHistory } from '@/src/lib/localDb';
-import { buildStatisticsView, formatBucketLabel, hasStatisticsData, type StatisticsFilter, type TimeRange } from '@/src/lib/statisticsMath';
+import { resolveWindowLayout } from '@/src/lib/layout';
+import { buildStatisticsView, formatBucketLabel, hasStatisticsData, statisticsRangeStart, type StatisticsFilter, type TimeRange } from '@/src/lib/statisticsMath';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 const ranges: Array<{ value: TimeRange; label: string }> = [
@@ -16,6 +17,8 @@ const ranges: Array<{ value: TimeRange; label: string }> = [
 
 export default function ProgressScreen() {
   const { colors } = useAppTheme();
+  const window = useWindowDimensions();
+  const expanded = resolveWindowLayout(window.width, window.height).expanded;
   const styles = createStyles(colors);
   const [history, setHistory] = useState<ReturnType<typeof getStatisticsHistory>>({ workouts: [], maximumTests: [] });
   const [range, setRange] = useState<TimeRange>('30d');
@@ -28,11 +31,11 @@ export default function ProgressScreen() {
   const refreshHistory = useCallback(() => {
     try {
       setError(false);
-      setHistory(getStatisticsHistory());
+      setHistory(getStatisticsHistory(statisticsRangeStart(range)?.toISOString()));
     } catch {
       setError(true);
     }
-  }, []);
+  }, [range]);
 
   useFocusEffect(useCallback(() => { refreshHistory(); }, [refreshHistory]));
 
@@ -66,12 +69,12 @@ export default function ProgressScreen() {
   const updateRange = (nextRange: TimeRange) => { setRange(nextRange); setSelected(null); setDetailsVisible(false); };
   const updateFilter = (nextFilter: StatisticsFilter) => { setFilter(nextFilter); setSelected(null); setDetailsVisible(false); };
 
-  return <Screen>
+  return <Screen width="expanded">
     <View style={styles.header}><Text style={styles.title}>Progress</Text><Text style={styles.subtitle}>Your record, read one honest session at a time</Text></View>
 
-    <View style={styles.controls}>
-      <View style={styles.controlGroup}><Text style={styles.controlLabel}>Time range</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.controlScroller} contentContainerStyle={styles.controlRow}>{ranges.map((option) => <Pressable key={option.value} accessibilityRole="button" accessibilityState={{ selected: range === option.value }} onPress={() => updateRange(option.value)} style={[styles.control, range === option.value && styles.controlActive]}><Text style={[styles.controlText, range === option.value && styles.controlTextActive]}>{option.label}</Text></Pressable>)}</ScrollView></View>
-      <View style={[styles.controlGroup, styles.controlGroupLast]}><Text style={styles.controlLabel}>Exercise</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.controlScroller} contentContainerStyle={styles.controlRow}>{filterOptions.map((option) => <Pressable key={option.key} accessibilityRole="button" accessibilityState={{ selected: filterKey === option.key }} onPress={() => updateFilter(option.value)} style={[styles.control, filterKey === option.key && styles.controlActive]}><Text style={[styles.controlText, filterKey === option.key && styles.controlTextActive]}>{option.label}</Text></Pressable>)}</ScrollView></View>
+    <View style={[styles.controls, expanded && styles.controlsExpanded]}>
+      <View style={[styles.controlGroup, expanded && styles.controlGroupExpanded]}><Text style={styles.controlLabel}>Time range</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.controlScroller} contentContainerStyle={styles.controlRow}>{ranges.map((option) => <Pressable key={option.value} accessibilityRole="button" accessibilityState={{ selected: range === option.value }} onPress={() => updateRange(option.value)} style={[styles.control, range === option.value && styles.controlActive]}><Text style={[styles.controlText, range === option.value && styles.controlTextActive]}>{option.label}</Text></Pressable>)}</ScrollView></View>
+      <View style={[styles.controlGroup, styles.controlGroupLast, expanded && styles.controlGroupExpanded]}><Text style={styles.controlLabel}>Exercise</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.controlScroller} contentContainerStyle={styles.controlRow}>{filterOptions.map((option) => <Pressable key={option.key} accessibilityRole="button" accessibilityState={{ selected: filterKey === option.key }} onPress={() => updateFilter(option.value)} style={[styles.control, filterKey === option.key && styles.controlActive]}><Text style={[styles.controlText, filterKey === option.key && styles.controlTextActive]}>{option.label}</Text></Pressable>)}</ScrollView></View>
     </View>
 
     {error ? <View accessibilityRole="alert" style={styles.state}><Text style={styles.stateTitle}>Progress is unavailable</Text><Text style={styles.stateBody}>We couldn’t read your saved training record. Reload it to try again</Text><Pressable accessibilityRole="button" onPress={refreshHistory} style={styles.stateAction}><Text style={styles.stateActionText}>Reload record</Text></Pressable></View> : !hasData ? <View style={styles.empty}><Text style={styles.emptyTitle}>{emptyTitle}</Text><Text style={styles.emptyBody}>{emptyBody}</Text>{!isHistoryEmpty && filter.type !== 'all' ? <Pressable accessibilityRole="button" onPress={() => updateFilter({ type: 'all' })} style={styles.stateAction}><Text style={styles.stateActionText}>View all exercises</Text></Pressable> : null}</View> : <>
@@ -100,12 +103,14 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   title: { color: colors.ink, fontFamily: fonts.body, fontSize: 36, fontWeight: '800', letterSpacing: -1.1 },
   subtitle: { color: colors.muted, fontFamily: fonts.body, fontSize: 15, lineHeight: 21, marginTop: spacing.xs },
   controls: { marginBottom: spacing.xl },
+  controlsExpanded: { flexDirection: 'row', gap: spacing.xl },
   controlGroup: { marginBottom: spacing.md },
+  controlGroupExpanded: { flex: 1, marginBottom: 0, minWidth: 0 },
   controlGroupLast: { marginBottom: 0 },
   controlLabel: { color: colors.ink, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.7, marginBottom: spacing.sm, textTransform: 'uppercase' },
   controlScroller: { flexGrow: 0, flexShrink: 0 },
   controlRow: { alignItems: 'center', gap: spacing.sm, paddingRight: spacing.lg },
-  control: { alignItems: 'center', alignSelf: 'flex-start', borderColor: colors.border, borderWidth: 1, height: 44, justifyContent: 'center', paddingHorizontal: spacing.md },
+  control: { alignItems: 'center', alignSelf: 'flex-start', borderColor: colors.border, borderWidth: 1, height: 48, justifyContent: 'center', paddingHorizontal: spacing.md },
   controlActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   controlText: { color: colors.ink, fontFamily: fonts.body, fontSize: 13, fontWeight: '700' },
   controlTextActive: { color: colors.white },
@@ -125,7 +130,7 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   metricLast: { borderBottomWidth: 0 },
   metricLabel: { color: colors.muted, flexShrink: 1, fontFamily: fonts.body, fontSize: 14 },
   metricValue: { color: colors.accent, fontFamily: fonts.body, fontSize: 25, fontWeight: '800', letterSpacing: -0.5, marginLeft: spacing.md },
-  detailToggle: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center', paddingVertical: spacing.sm },
+  detailToggle: { alignSelf: 'flex-start', minHeight: 48, justifyContent: 'center', paddingVertical: spacing.sm },
   detailToggleText: { color: colors.accent, fontFamily: fonts.body, fontSize: 13, fontWeight: '800' },
   detailLedger: { borderTopColor: colors.border, borderTopWidth: 1 },
   empty: { borderBottomColor: colors.border, borderBottomWidth: 1, borderTopColor: colors.border, borderTopWidth: 1, paddingVertical: spacing.xl },
@@ -134,6 +139,6 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   state: { borderBottomColor: colors.border, borderBottomWidth: 1, borderTopColor: colors.border, borderTopWidth: 1, paddingVertical: spacing.xl },
   stateTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
   stateBody: { color: colors.muted, fontFamily: fonts.body, fontSize: 15, lineHeight: 22, marginTop: spacing.sm },
-  stateAction: { alignItems: 'center', alignSelf: 'flex-start', borderColor: colors.accent, borderWidth: 1, justifyContent: 'center', marginTop: spacing.lg, minHeight: 44, paddingHorizontal: spacing.md },
+  stateAction: { alignItems: 'center', alignSelf: 'flex-start', borderColor: colors.accent, borderWidth: 1, justifyContent: 'center', marginTop: spacing.lg, minHeight: 48, paddingHorizontal: spacing.md },
   stateActionText: { color: colors.accent, fontFamily: fonts.body, fontSize: 14, fontWeight: '800' },
 });

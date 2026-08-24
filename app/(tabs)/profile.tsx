@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { Screen } from '@/src/components/Screen';
@@ -15,7 +15,7 @@ export default function SettingsScreen() {
       <View style={styles.row}><View style={styles.icon}><Ionicons name="moon-outline" size={20} color={colors.accent} /></View><View style={styles.copy}><Text style={styles.label}>Dark appearance</Text><Text style={styles.note}>{mode === 'dark' ? 'On' : 'Off'}</Text></View><Switch accessibilityLabel="Use dark appearance" onValueChange={(enabled) => setMode(enabled ? 'dark' : 'light')} trackColor={{ false: colors.border, true: colors.accent }} value={mode === 'dark'} /></View>
     </View>
     <Text style={styles.section}>About</Text>
-    <View style={styles.about}><Text style={styles.aboutTitle}>Repbook</Text><Text style={styles.aboutBody}>Your training record stays on this device and works without a connection</Text></View>
+    <View style={styles.about}><Text style={styles.aboutTitle}>Simple Bodyweight</Text><Text style={styles.aboutBody}>Your training record stays on this device and works without a connection</Text></View>
   </Screen>;
 }
 

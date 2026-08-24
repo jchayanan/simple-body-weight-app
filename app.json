@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Repbook",
+    "name": "Simple Bodyweight",
     "slug": "repbook",
     "scheme": "repbook",
     "version": "1.0.0",
@@ -11,6 +11,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.chaya.simplebodyweight",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",

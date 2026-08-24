@@ -90,7 +90,7 @@ export function ProgressChart({ regularSeries, maximumSeries, activeSeries, sele
 const createStyles = (colors: AppColors) => StyleSheet.create({
   container: { borderBottomColor: colors.border, borderBottomWidth: 1, paddingBottom: spacing.md },
   legend: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginBottom: spacing.md },
-  legendButton: { alignItems: 'center', borderColor: colors.border, borderWidth: 1, flexDirection: 'row', flexShrink: 0, minHeight: 44, paddingHorizontal: spacing.sm },
+  legendButton: { alignItems: 'center', borderColor: colors.border, borderWidth: 1, flexDirection: 'row', flexShrink: 0, minHeight: 48, paddingHorizontal: spacing.sm },
   legendButtonActive: { borderColor: colors.accent },
   legendMark: { height: 8, marginRight: spacing.xs, width: 8 },
   regularMark: { backgroundColor: colors.accent },

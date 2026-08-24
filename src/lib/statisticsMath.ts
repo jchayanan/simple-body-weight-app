@@ -62,6 +62,14 @@ function endOfYear(value: Date) {
   return new Date(value.getFullYear(), 11, 31, 23, 59, 59, 999);
 }
 
+export function statisticsRangeStart(range: TimeRange, now = new Date()) {
+  const day = startOfDay(now);
+  if (range === '30d') return addDays(day, -29);
+  if (range === '6m') return addDays(startOfWeek(day), -25 * 7);
+  if (range === '1y') return new Date(day.getFullYear(), day.getMonth() - 11, 1);
+  return null;
+}
+
 function createBuckets(input: StatisticsInput): Bucket[] {
   const now = startOfDay(input.now);
   if (input.range === '30d') return Array.from({ length: 30 }, (_, index) => {

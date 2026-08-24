@@ -90,16 +90,18 @@ export function getMovementProgramStatus(movement: MovementName) {
   return movementProgramStatus(getMovementHistory(), movement);
 }
 
-export function getStatisticsHistory(): { workouts: StoredWorkout[]; maximumTests: MaximumTestEntry[] } {
+export function getStatisticsHistory(since?: string): { workouts: StoredWorkout[]; maximumTests: MaximumTestEntry[] } {
   initialiseLocalDb();
-  const rows = database.getAllSync<{ workout_id: number; routine: string; completed_at: string; entry_id: number | null; exercise: 'Push-up' | 'Pull-up' | 'Squat' | null; reps: number | null; set_index: number | null }>(`SELECT completed_workouts.id AS workout_id, completed_workouts.routine, completed_workouts.completed_at, workout_exercise_entries.id AS entry_id, workout_exercise_entries.exercise, workout_exercise_entries.reps, workout_exercise_entries.set_index FROM completed_workouts LEFT JOIN workout_exercise_entries ON workout_exercise_entries.workout_id = completed_workouts.id ORDER BY completed_workouts.completed_at ASC, workout_exercise_entries.set_index ASC`);
+  const workoutWhere = since ? 'WHERE completed_workouts.completed_at >= ?' : '';
+  const rows = database.getAllSync<{ workout_id: number; routine: string; completed_at: string; entry_id: number | null; exercise: 'Push-up' | 'Pull-up' | 'Squat' | null; reps: number | null; set_index: number | null }>(`SELECT completed_workouts.id AS workout_id, completed_workouts.routine, completed_workouts.completed_at, workout_exercise_entries.id AS entry_id, workout_exercise_entries.exercise, workout_exercise_entries.reps, workout_exercise_entries.set_index FROM completed_workouts LEFT JOIN workout_exercise_entries ON workout_exercise_entries.workout_id = completed_workouts.id ${workoutWhere} ORDER BY completed_workouts.completed_at ASC, workout_exercise_entries.set_index ASC`, ...(since ? [since] : []));
   const workouts = new Map<number, StoredWorkout>();
   rows.forEach((row) => {
     const workout = workouts.get(row.workout_id) ?? { id: row.workout_id, routine: row.routine, completedAt: row.completed_at, entries: [] };
     if (row.entry_id !== null && row.exercise !== null && row.reps !== null && row.set_index !== null) workout.entries.push({ id: row.entry_id, exercise: row.exercise, reps: row.reps, setIndex: row.set_index });
     workouts.set(row.workout_id, workout);
   });
-  const maximumTests = getMovementHistory().filter((entry) => entry.kind === 'maximum').map((entry) => ({ id: entry.id, movement: entry.movement, reps: entry.reps, recordedAt: entry.recordedAt }));
+  const maximumWhere = since ? 'AND recorded_at >= ?' : '';
+  const maximumTests = database.getAllSync<{ id: number; movement: MovementName; reps: number; recorded_at: string }>(`SELECT id, movement, reps, recorded_at FROM movement_history WHERE kind = 'maximum' ${maximumWhere} ORDER BY recorded_at ASC`, ...(since ? [since] : [])).map((entry) => ({ id: entry.id, movement: entry.movement, reps: entry.reps, recordedAt: entry.recorded_at }));
   return { workouts: [...workouts.values()], maximumTests };
 }
 

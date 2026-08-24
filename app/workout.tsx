@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -46,6 +46,7 @@ export default function WorkoutScreen() {
   const [isRepEditorOpen, setIsRepEditorOpen] = useState(false);
   const [editingSavedIndex, setEditingSavedIndex] = useState<number | null>(null);
   const [isWorkoutActionLocked, setIsWorkoutActionLocked] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const workoutActionGuard = useRef(createRestSkipGuard());
   const workoutActionReleaseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exerciseNames = plan.labels;
@@ -93,7 +94,12 @@ export default function WorkoutScreen() {
   };
 
   const finish = () => {
-    finishWorkout();
+    const result = finishWorkout();
+    if (!result.saved) {
+      setSaveError(result.message);
+      return;
+    }
+    setSaveError('');
     router.replace('/complete');
   };
 
@@ -124,14 +130,14 @@ export default function WorkoutScreen() {
       <View style={styles.previous}><Text style={styles.previousLabel}>LAST TIME</Text><Text style={styles.previousValue}>{previousValue}</Text><Text style={styles.previousNote}>{previousReps === null ? 'No saved history yet' : 'latest logged entry'}</Text></View>
       {savedExercises.some((entry) => entry !== null) ? <View style={styles.sessionLog}>{savedExercises.map((entry, index) => entry === null ? null : <Pressable key={exerciseNames[index]} accessibilityRole="button" accessibilityLabel={`Edit ${exerciseNames[index]}, ${entry} reps`} accessibilityHint="Opens a number input" onPress={() => { setEditingSavedIndex(index); setIsRepEditorOpen(true); }} style={({ pressed }) => [styles.savedRow, pressed && styles.pressed]}><Text style={styles.savedName}>{exerciseNames[index]}</Text><Text style={styles.savedValue}>{entry} reps</Text></Pressable>)}</View> : null}
     </ScrollView>
-    <View style={styles.footer}><PrimaryButton disabled={isWorkoutActionLocked} label={current === exerciseNames.length - 1 ? 'Finish workout' : 'Save & rest'} onPress={continueWorkout} /><Text style={styles.footerNote}>{current === exerciseNames.length - 1 ? 'This saves your final exercise and completes the session' : `This saves the ${isMaxProgram ? 'set' : 'exercise'} before the ${restSeconds}-second rest`}</Text></View><RepEditorModal minimum={1} onClose={() => { setIsRepEditorOpen(false); setEditingSavedIndex(null); }} onSave={(nextReps) => { if (editingSavedIndex === null) setCurrentReps(nextReps); else updateSavedExercise(editingSavedIndex, nextReps); }} title={editingSavedIndex === null ? isMaxProgram ? 'Edit this set' : 'Edit this exercise' : `Edit ${exerciseNames[editingSavedIndex]}`} value={editingSavedIndex === null ? reps : setReps[editingSavedIndex] ?? 1} visible={isRepEditorOpen} />
+    <View style={styles.footer}>{saveError ? <Text accessibilityLiveRegion="assertive" style={styles.saveError}>{saveError}</Text> : null}<PrimaryButton disabled={isWorkoutActionLocked} label={saveError ? 'Retry save' : current === exerciseNames.length - 1 ? 'Finish workout' : 'Save & rest'} onPress={continueWorkout} /><Text style={styles.footerNote}>{saveError ? 'Nothing was discarded. Check available storage, then retry' : current === exerciseNames.length - 1 ? 'This saves your final exercise and completes the session' : `This saves the ${isMaxProgram ? 'set' : 'exercise'} before the ${restSeconds}-second rest`}</Text></View><RepEditorModal minimum={1} onClose={() => { setIsRepEditorOpen(false); setEditingSavedIndex(null); }} onSave={(nextReps) => { if (editingSavedIndex === null) setCurrentReps(nextReps); else updateSavedExercise(editingSavedIndex, nextReps); }} title={editingSavedIndex === null ? isMaxProgram ? 'Edit this set' : 'Edit this exercise' : `Edit ${exerciseNames[editingSavedIndex]}`} value={editingSavedIndex === null ? reps : setReps[editingSavedIndex] ?? 1} visible={isRepEditorOpen} />
   </SafeAreaView>;
 }
 
 const createStyles = (colors: AppColors) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.instrument },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingTop: spacing.sm, marginBottom: spacing.md },
-  close: { width: 44, height: 44, alignItems: 'flex-start', justifyContent: 'center' },
+  close: { width: 48, height: 48, alignItems: 'flex-start', justifyContent: 'center' },
   topTitle: { color: colors.instrumentMuted, fontFamily: fonts.body, fontSize: 12, fontWeight: '800', letterSpacing: 0.8 },
   progressLabel: { color: colors.white, fontFamily: fonts.body, fontSize: 12, fontWeight: '700' },
   progressTrack: { flexDirection: 'row', gap: 5, paddingHorizontal: spacing.lg, marginBottom: spacing.lg }, segment: { backgroundColor: colors.segmentOff, flex: 1, height: 6 }, segmentLit: { backgroundColor: colors.accent },
@@ -164,6 +170,7 @@ const createStyles = (colors: AppColors) => StyleSheet.create({
   skipRest: { alignItems: 'center', borderColor: colors.segmentOff, borderWidth: 1, justifyContent: 'center', minHeight: 52 },
   skipRestText: { color: colors.white, fontFamily: fonts.body, fontSize: 15, fontWeight: '700' },
   footer: { borderTopWidth: 1, borderTopColor: colors.segmentOff, paddingHorizontal: spacing.lg, paddingTop: spacing.sm, paddingBottom: spacing.xs, backgroundColor: colors.instrument },
+  saveError: { color: colors.error, fontFamily: fonts.body, fontSize: 13, lineHeight: 18, marginBottom: spacing.sm, textAlign: 'center' },
   topCompact: { marginBottom: spacing.xs, paddingTop: 0 },
   progressTrackCompact: { marginBottom: spacing.sm },
   contentCompact: { paddingBottom: spacing.md },

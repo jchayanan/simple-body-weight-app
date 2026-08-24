@@ -1,4 +1,10 @@
-import { buildStatisticsView, getChartAxisPoints, hasStatisticsData, type StatisticsInput } from './statisticsMath';
+import { strict as assert } from 'node:assert';
+import { buildStatisticsView, getChartAxisPoints, hasStatisticsData, statisticsRangeStart, type StatisticsInput } from './statisticsMath';
+
+const rangeNow = new Date(2026, 7, 15, 12);
+assert.equal(statisticsRangeStart('30d', rangeNow)?.getTime(), new Date(2026, 6, 17).getTime());
+assert.equal(statisticsRangeStart('1y', rangeNow)?.getTime(), new Date(2025, 8, 1).getTime());
+assert.equal(statisticsRangeStart('all', rangeNow), null);
 
 const input: StatisticsInput = {
   now: new Date('2026-08-15T12:00:00.000Z'),
