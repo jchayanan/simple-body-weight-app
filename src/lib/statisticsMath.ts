@@ -4,7 +4,7 @@ export type StatisticsFilter = { type: 'all' } | { type: 'exercise'; value: Stat
 
 export type WorkoutExerciseEntry = { id: number; exercise: StatisticsExercise; reps: number; setIndex: number };
 export type TrackedWorkoutEntryInput = Omit<WorkoutExerciseEntry, 'id'>;
-export type StoredWorkout = { id: number; routine: string; completedAt: string; entries: WorkoutExerciseEntry[] };
+export type StoredWorkout = { id: number; routine: string; completedAt: string; totalReps?: number; entries: WorkoutExerciseEntry[] };
 export type MaximumTestEntry = { id: number; movement: StatisticsExercise; reps: number; recordedAt: string };
 export type StatisticsInput = { now: Date; range: TimeRange; filter: StatisticsFilter; workouts: StoredWorkout[]; maximumTests: MaximumTestEntry[] };
 

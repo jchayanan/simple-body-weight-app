@@ -78,7 +78,7 @@ export function saveCompletedWorkout({ movement, movementReps, routine, totalRep
   const completedAt = new Date().toISOString();
   const workoutId = Date.now();
   const workouts = readWorkouts();
-  workouts.push({ id: workoutId, routine, completedAt, entries: entries.map((entry, index) => ({ ...entry, id: workoutId * 100 + index })) });
+  workouts.push({ id: workoutId, routine, totalReps, completedAt, entries: entries.map((entry, index) => ({ ...entry, id: workoutId * 100 + index })) });
   writeWorkouts(workouts);
   if (movement && movementReps !== undefined) addEntry({ movement, kind: 'session', reps: movementReps, routine, maximumProgram, maximumTest });
 }
