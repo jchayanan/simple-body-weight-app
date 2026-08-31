@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { validateRepDraft } from '@/src/lib/repInput';
 import { AppColors, fonts, spacing, useAppTheme } from '@/src/theme';
 
 type RepEditorModalProps = {
@@ -7,11 +8,12 @@ type RepEditorModalProps = {
   title: string;
   value: number | null;
   minimum?: number;
+  maximum?: number;
   onClose: () => void;
   onSave: (value: number) => void;
 };
 
-export function RepEditorModal({ visible, title, value, minimum = 0, onClose, onSave }: RepEditorModalProps) {
+export function RepEditorModal({ visible, title, value, minimum = 0, maximum, onClose, onSave }: RepEditorModalProps) {
   const { colors } = useAppTheme();
   const styles = createStyles(colors);
   const [draft, setDraft] = useState(String(value));
@@ -25,12 +27,12 @@ export function RepEditorModal({ visible, title, value, minimum = 0, onClose, on
   }, [value, visible]);
 
   const save = () => {
-    const nextValue = Number(draft);
-    if (!Number.isInteger(nextValue) || nextValue < minimum) {
-      setError(`Enter a whole number of at least ${minimum}.`);
+    const result = validateRepDraft(draft, minimum, maximum);
+    if ('error' in result) {
+      setError(result.error);
       return;
     }
-    onSave(nextValue);
+    onSave(result.value);
     onClose();
   };
 
