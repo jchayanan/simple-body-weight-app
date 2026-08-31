@@ -17,7 +17,10 @@ if (buildMaxProgramTargets(50, 1).join(',') !== '29,25,22,20,17') throw new Erro
 if (buildMaxProgramTargets(50, 2).join(',') !== '31,27,24,22,19') throw new Error('Session 2 targets should follow the approved percentage table.');
 if (buildMaxProgramTargets(50, 3).join(',') !== '33,29,26,24,21') throw new Error('Session 3 targets should follow the approved percentage table.');
 if (buildMaxProgramTargets(50, 4).join(',') !== '35,31,28,26,23') throw new Error('Session 4 targets should follow the approved percentage table.');
-if (restSecondsForSession(1) !== 120 || restSecondsForSession(2) !== 140 || restSecondsForSession(3) !== 160 || restSecondsForSession(4) !== 180) throw new Error('Rest should lengthen for each maximum-program session.');
+const restSchedule = (movement: 'Push-up' | 'Pull-up' | 'Squat') => [1, 2, 3, 4].map((session) => restSecondsForSession(session, movement)).join(',');
+if (restSchedule('Push-up') !== '120,140,160,180') throw new Error('Push-up rest should lengthen for each maximum-program session.');
+if (restSchedule('Pull-up') !== '120,140,160,180') throw new Error('Pull-up rest should lengthen for each maximum-program session.');
+if (restSchedule('Squat') !== '80,90,100,120') throw new Error('Squat rest should follow its shorter maximum-program schedule.');
 const squatEntry = { id: 10, movement: 'Squat' as const, kind: 'maximum' as const, reps: 20, recordedAt: '2026-08-15T08:00:00.000Z' };
 if (personalBest([squatEntry], 'Squat') !== 20) throw new Error('Squat should keep a separate personal best.');
 if (buildMaxProgramTargets(20, 1).length !== 5) throw new Error('Squat programs must contain five sets.');

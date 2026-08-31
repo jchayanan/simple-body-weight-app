@@ -52,7 +52,7 @@ export default function WorkoutScreen() {
   const exerciseNames = plan.labels;
   const currentLabel = exerciseNames[current];
   const isMaxProgram = plan.type === 'max-program';
-  const restSeconds = isMaxProgram ? restSecondsForSession(plan.sessionNumber) : 60;
+  const restSeconds = isMaxProgram ? restSecondsForSession(plan.sessionNumber, plan.movement) : 60;
   const trackedMovement = isMaxProgram || currentLabel === plan.trackedMovement ? plan.trackedMovement : undefined;
   const previousReps = useMemo(() => getPreviousReps(trackedMovement), [trackedMovement]);
   const previousValue = previousReps === null ? 'No previous entry' : `${previousReps} reps`;

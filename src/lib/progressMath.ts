@@ -29,8 +29,9 @@ export function buildMaxProgramTargets(maximumReps: number, sessionNumber = 1) {
   return progression.map((percentage) => Math.max(1, Math.round((maximumReps * percentage) / 100)));
 }
 
-export function restSecondsForSession(sessionNumber?: number) {
-  return 120 + (Math.min(Math.max(sessionNumber ?? 1, 1), 4) - 1) * 20;
+export function restSecondsForSession(sessionNumber?: number, movement: MovementName = 'Push-up') {
+  const schedule = movement === 'Squat' ? [80, 90, 100, 120] : [120, 140, 160, 180];
+  return schedule[Math.min(Math.max(sessionNumber ?? 1, 1), schedule.length) - 1];
 }
 
 const localDayKey = (value: Date) => `${value.getFullYear()}-${value.getMonth()}-${value.getDate()}`;
