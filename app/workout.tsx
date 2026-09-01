@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useAudioPlayer } from 'expo-audio';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -9,6 +10,7 @@ import { getStatisticsHistory } from '@/src/lib/localDb';
 import type { MovementName } from '@/src/lib/progressMath';
 import { restSecondsForSession } from '@/src/lib/progressMath';
 import { workoutRepLimit } from '@/src/lib/repInput';
+import { cancelRestCountdownSound, playRestCountdownSound, shouldPlayRestCountdownSound } from '@/src/lib/restCountdownSound';
 import { createRestSkipGuard } from '@/src/lib/restSkipGuard';
 import { formatCountdown } from '@/src/lib/time';
 import { useWorkoutStore } from '@/src/stores/useWorkoutStore';
@@ -48,6 +50,9 @@ export default function WorkoutScreen() {
   const [editingSavedIndex, setEditingSavedIndex] = useState<number | null>(null);
   const [isWorkoutActionLocked, setIsWorkoutActionLocked] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const countdownPlayer = useAudioPlayer(require('../assets/sounds/countdown-beep.wav'));
+  const restCountdownCancellation = useRef(false);
+  const lastPlayedRestSecond = useRef<number | null>(null);
   const workoutActionGuard = useRef(createRestSkipGuard());
   const workoutActionReleaseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exerciseNames = plan.labels;
@@ -74,6 +79,24 @@ export default function WorkoutScreen() {
     return () => clearInterval(timer);
   }, [restEndsAt]);
 
+  useEffect(() => {
+    if (seconds > 3) {
+      lastPlayedRestSecond.current = null;
+      return undefined;
+    }
+    let cancelled = false;
+    if (seconds === 0) {
+      lastPlayedRestSecond.current = null;
+      cancelRestCountdownSound(countdownPlayer, restCountdownCancellation);
+      return () => { cancelled = true; };
+    }
+    if (shouldPlayRestCountdownSound(seconds, lastPlayedRestSecond.current)) {
+      lastPlayedRestSecond.current = seconds;
+      void playRestCountdownSound(countdownPlayer, () => cancelled || restCountdownCancellation.current).catch(() => undefined);
+    }
+    return () => { cancelled = true; };
+  }, [countdownPlayer, seconds]);
+
   useEffect(() => () => {
     if (workoutActionReleaseTimer.current) clearTimeout(workoutActionReleaseTimer.current);
   }, []);
@@ -89,6 +112,7 @@ export default function WorkoutScreen() {
   };
 
   const saveAndContinue = () => {
+    restCountdownCancellation.current = false;
     setLastSaved({ name: currentLabel, reps });
     saveCurrentExercise();
     setRestEndsAt(Date.now() + restSeconds * 1000);
@@ -106,6 +130,7 @@ export default function WorkoutScreen() {
 
   const skipRest = () => {
     if (!beginWorkoutAction()) return;
+    cancelRestCountdownSound(countdownPlayer, restCountdownCancellation);
     setRestEndsAt(null);
   };
 
